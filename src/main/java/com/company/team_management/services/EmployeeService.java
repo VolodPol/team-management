@@ -1,6 +1,8 @@
 package com.company.team_management.services;
 
 import com.company.team_management.entities.Employee;
+import com.company.team_management.exceptions.EmployeeAlreadyExistsException;
+import com.company.team_management.exceptions.NoSuchEmployeeException;
 import com.company.team_management.repositories.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,52 +12,57 @@ import java.util.function.Consumer;
 
 @Service
 public class EmployeeService implements IEmployeeService {
-    private final EmployeeRepository repo;
+    private final EmployeeRepository employeeRepository;
 
     @Autowired
     public EmployeeService(EmployeeRepository repo) {
-        this.repo = repo;
-    }
-
-    @Override
-    public Employee save(Employee employee) {
-        return repo.save(employee);
+        this.employeeRepository = repo;
     }
 
     @Override
     public List<Employee> findAll() {
-        return repo.findAll();
+        return employeeRepository.findAll();
     }
 
     @Override
     public Employee findById(int id) {
-        return repo.findById(id)
-                .orElse(null);
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new NoSuchEmployeeException(
+                        String.format("There is no employee with id = %d", id)
+                ));
     }
 
     @Override
-    public Employee deleteById(int id) {
-        Employee found = findById(id);
+    public Employee save(Employee employee) {
+        if (employee.getId() == null)
+            return employeeRepository.save(employee);
 
-        repo.deleteById(id);
-        return found;
+        Employee found = employeeRepository.findById(employee.getId())
+                .orElse(null);
+
+        if (found != null)
+            throw new EmployeeAlreadyExistsException("Employee already exists!");
+
+        return employeeRepository.save(employee);
+    }
+
+    @Override
+    public void deleteById(int id) {
+        findById(id);
+        employeeRepository.deleteById(id);
     }
 
     @Override
     public Employee updateById(int id, Employee employee) {
         Employee found = findById(id);
 
-        if (found != null) {
-            setNullable(found::setFullName, employee.getFullName());
-            setNullable(found::setEmail, employee.getEmail());
-            setNullable(found::setOccupation, employee.getOccupation());
-            setNullable(found::setLevel, employee.getLevel());
-            setNullable(found::setType, employee.getType());
+        setNullable(found::setFullName, employee.getFullName());
+        setNullable(found::setEmail, employee.getEmail());
+        setNullable(found::setOccupation, employee.getOccupation());
+        setNullable(found::setLevel, employee.getLevel());
+        setNullable(found::setType, employee.getType());
 
-            repo.save(found);
-        }
-
-        return found;
+        return employeeRepository.save(found);
     }
 
     private <T> void setNullable(Consumer<T> setter, T value) {

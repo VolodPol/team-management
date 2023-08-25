@@ -8,6 +8,6 @@ public interface IEmployeeService {
     Employee save(Employee employee);
     List<Employee> findAll();
     Employee findById(int id);
-    Employee deleteById(int id);
+    void deleteById(int id);
     Employee updateById(int id, Employee employee);
 }

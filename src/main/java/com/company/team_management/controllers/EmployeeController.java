@@ -1,7 +1,11 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.entities.Employee;
+import com.company.team_management.exceptions.EmployeeAlreadyExistsException;
+import com.company.team_management.exceptions.ErrorResponse;
+import com.company.team_management.exceptions.NoSuchEmployeeException;
 import com.company.team_management.services.EmployeeService;
+import com.company.team_management.services.IEmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +15,7 @@ import java.util.List;
 
 @RestController
 public class EmployeeController {
-    private final EmployeeService service;
+    private final IEmployeeService service;
     @Autowired
     public EmployeeController(EmployeeService service) {
         this.service = service;
@@ -30,23 +34,29 @@ public class EmployeeController {
         );
     }
 
-    @GetMapping(value = "company/employee", produces = "application/json")
-    public ResponseEntity<Employee> findById(@RequestParam(name = "id") int id) {
+    @GetMapping(value = "company/employee/{id}", produces = "application/json")
+    public ResponseEntity<Employee> findById(@PathVariable int id) {
         Employee foundEmp = service.findById(id);
         return new ResponseEntity<>(foundEmp, foundEmp == null
                 ? HttpStatus.NOT_FOUND
                 : HttpStatus.FOUND);
     }
 
-    @DeleteMapping(value = "company/employee", params = "id")
-    public ResponseEntity<Employee> deleteById(@RequestParam int id) {
-        return new ResponseEntity<>(service.deleteById(id), HttpStatus.NO_CONTENT);
+    @DeleteMapping(value = "company/employee/{id}")
+    public ResponseEntity<Employee> deleteById(@PathVariable int id) {
+        service.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping(value = "company/employee", consumes = "application/json")
-    public ResponseEntity<Employee> updateById(@RequestParam int id, @RequestBody Employee employee) {
+    @PutMapping(value = "company/employee/{id}", consumes = "application/json")
+    public ResponseEntity<Employee> updateById(@PathVariable int id, @RequestBody Employee employee) {
         return new ResponseEntity<>(
                 service.updateById(id, employee), HttpStatus.OK
         );
+    }
+
+    @ExceptionHandler(value = {EmployeeAlreadyExistsException.class, NoSuchEmployeeException.class})
+    public ErrorResponse handle(RuntimeException exception) {
+        return new ErrorResponse(HttpStatus.CONFLICT, exception.getMessage());
     }
 }
