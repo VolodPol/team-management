@@ -60,7 +60,7 @@ class EmployeeServiceTest {
 
         assertEquals(employee2, service.findById(id));
         assertThrows(NoSuchEmployeeException.class,
-                () -> service.findById(2));
+                () -> service.findById(id + 1));
         verify(repository, times(2)).findById(any());
     }
 

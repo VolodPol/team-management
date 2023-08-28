@@ -37,19 +37,20 @@ public class EmployeeController {
     @GetMapping(value = "company/employee/{id}", produces = "application/json")
     public ResponseEntity<Employee> findById(@PathVariable int id) {
         Employee foundEmp = service.findById(id);
-        return new ResponseEntity<>(foundEmp, foundEmp == null
-                ? HttpStatus.NOT_FOUND
-                : HttpStatus.FOUND);
+        return new ResponseEntity<>(foundEmp,  HttpStatus.FOUND);
     }
 
     @DeleteMapping(value = "company/employee/{id}")
-    public ResponseEntity<Employee> deleteById(@PathVariable int id) {
+    public ResponseEntity<String> deleteById(@PathVariable int id) {
         service.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(
+                "Successful deletion completed!", HttpStatus.NO_CONTENT
+        );
     }
 
     @PutMapping(value = "company/employee/{id}", consumes = "application/json")
-    public ResponseEntity<Employee> updateById(@PathVariable int id, @RequestBody Employee employee) {
+    public ResponseEntity<Employee> updateById(@PathVariable int id,
+                                               @RequestBody Employee employee) {
         return new ResponseEntity<>(
                 service.updateById(id, employee), HttpStatus.OK
         );
