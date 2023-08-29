@@ -1,6 +1,7 @@
 package com.company.team_management.repositories;
 
 import com.company.team_management.EmployeeProvider;
+import com.company.team_management.TestEntityProvider;
 import com.company.team_management.entities.Employee;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,11 +25,12 @@ class EmployeeRepositoryTest {
     @Autowired
     private EmployeeRepository repository;
     private Employee employee;
+    private final TestEntityProvider<Employee> entityProvider = new EmployeeProvider();
 
     @BeforeEach
     public void setUp() {
         repository.deleteAllInBatch();
-        employee = EmployeeProvider.generateEmployee();
+        employee = entityProvider.generateEntity();
     }
 
     @AfterEach
@@ -48,7 +50,7 @@ class EmployeeRepositoryTest {
 
     @Test
     public void getAllCase() {
-        List<Employee> employeeList = EmployeeProvider.generateListOfSeveralEmployees();
+        List<Employee> employeeList = entityProvider.generateEntityList();
         repository.saveAll(employeeList);
 
         List<Employee> fetched = repository.findAll();

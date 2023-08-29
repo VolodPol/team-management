@@ -1,11 +1,11 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.entities.Employee;
-import com.company.team_management.exceptions.EmployeeAlreadyExistsException;
+import com.company.team_management.exceptions.employee.EmployeeAlreadyExistsException;
 import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.NoSuchEmployeeException;
+import com.company.team_management.exceptions.employee.NoSuchEmployeeException;
 import com.company.team_management.services.EmployeeService;
-import com.company.team_management.services.IEmployeeService;
+import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 public class EmployeeController {
-    private final IEmployeeService service;
+    private final IService<Employee> service;
     @Autowired
     public EmployeeController(EmployeeService service) {
         this.service = service;
@@ -44,7 +44,7 @@ public class EmployeeController {
     public ResponseEntity<String> deleteById(@PathVariable int id) {
         service.deleteById(id);
         return new ResponseEntity<>(
-                "Successful deletion completed!", HttpStatus.NO_CONTENT
+                "Successfully deleted!", HttpStatus.NO_CONTENT
         );
     }
 

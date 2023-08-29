@@ -4,11 +4,10 @@ import com.company.team_management.entities.Employee;
 
 import java.util.List;
 
-public class EmployeeProvider {
-    private EmployeeProvider() {
-    }
+public class EmployeeProvider implements TestEntityProvider<Employee> {
 
-    public static Employee generateEmployee() {
+    @Override
+    public Employee generateEntity() {
         return new Employee.Builder()
                 .addFullName("ivan")
                 .addEmail("vanya@gmail.com")
@@ -18,7 +17,8 @@ public class EmployeeProvider {
                 .build();
     }
 
-    public static List<Employee> generateListOfSeveralEmployees() {
+    @Override
+    public List<Employee> generateEntityList() {
         return List.of(
                 new Employee.Builder()
                         .addFullName("sergiy")
