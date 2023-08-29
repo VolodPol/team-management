@@ -1,13 +1,13 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.EmployeeProvider;
+import com.company.team_management.TestEntityProvider;
+import com.company.team_management.TestUtils;
 import com.company.team_management.entities.Employee;
-import com.company.team_management.exceptions.EmployeeAlreadyExistsException;
+import com.company.team_management.exceptions.employee.EmployeeAlreadyExistsException;
 import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.NoSuchEmployeeException;
+import com.company.team_management.exceptions.employee.NoSuchEmployeeException;
 import com.company.team_management.services.EmployeeService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +36,7 @@ class EmployeeControllerTest {
     @Mock
     private EmployeeService service;
     private Employee employee;
+    private final TestEntityProvider<Employee> entityProvider = new EmployeeProvider();
 
 
     @BeforeEach
@@ -44,7 +45,7 @@ class EmployeeControllerTest {
                 .defaultRequest(get("/**").accept(MediaType.APPLICATION_JSON))
                 .alwaysExpect(content().contentType("application/json"))
                 .build();
-        employee = EmployeeProvider.generateEmployee();
+        employee = entityProvider.generateEntity();
         employee.setId(ThreadLocalRandom.current().nextInt(0, 10));
     }
 
@@ -53,7 +54,7 @@ class EmployeeControllerTest {
         when(service.save(any())).thenReturn(employee);
         mockMvc.perform(post("/company/employee")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJsonString(employee)))
+                .content(TestUtils.objectToJsonString(employee)))
                 .andExpect(status().isCreated());
 
         verify(service, times(1)).save(employee);
@@ -61,15 +62,15 @@ class EmployeeControllerTest {
 
     @Test
     public void getAllEmployees() throws Exception {
-        List<Employee> fetched = EmployeeProvider.generateListOfSeveralEmployees();
+        List<Employee> fetched = entityProvider.generateEntityList();
         when(service.findAll()).thenReturn(fetched);
 
         mockMvc.perform(get("/company/employees")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJsonString(fetched)))
+                .content(TestUtils.objectToJsonString(fetched)))
                 .andExpectAll(
                         status().isOk(),
-                        content().json(toJsonString(fetched))
+                        content().json(TestUtils.objectToJsonString(fetched))
                 );
         verify(service, times(1)).findAll();
     }
@@ -80,9 +81,9 @@ class EmployeeControllerTest {
 
         mockMvc.perform(get("/company/employee/{id}", employee.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJsonString(employee)))
+                .content(TestUtils.objectToJsonString(employee)))
                 .andExpectAll(
-                        content().json(toJsonString(employee)),
+                        content().json(TestUtils.objectToJsonString(employee)),
                         status().isFound()
                 );
         verify(service, times(1)).findById(employee.getId());
@@ -95,7 +96,7 @@ class EmployeeControllerTest {
         mockMvc.perform(delete("/company/employee/{id}", employee.getId()))
                 .andExpectAll(
                         status().isNoContent(),
-                        content().string("Successful deletion completed!")
+                        content().string("Successfully deleted!")
                 );
 
         verify(service, times(1)).deleteById(employee.getId());
@@ -103,7 +104,7 @@ class EmployeeControllerTest {
 
     @Test
     public void updateEmployeeById() throws Exception {
-        Employee updated = EmployeeProvider.generateEmployee();
+        Employee updated = entityProvider.generateEntity();
         updated.setId(employee.getId());
         updated.setEmail("updated@gmail.com");
         updated.setLevel(Employee.Level.MIDDLE);
@@ -112,8 +113,8 @@ class EmployeeControllerTest {
 
         mockMvc.perform(put("/company/employee/{id}", employee.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJsonString(employee))
-        ).andExpectAll(status().isOk(), content().json(toJsonString(updated)));
+                .content(TestUtils.objectToJsonString(employee))
+        ).andExpectAll(status().isOk(), content().json(TestUtils.objectToJsonString(updated)));
         verify(service, times(1)).updateById(employee.getId(), employee);
     }
 
@@ -126,10 +127,10 @@ class EmployeeControllerTest {
 
         mockMvc.perform(get("/company/employee/{id}", employee.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJsonString(employee)))
+                .content(TestUtils.objectToJsonString(employee)))
                 .andDo(print())
                 .andExpect(
-                        content().json(toJsonString(
+                        content().json(TestUtils.objectToJsonString(
                                 new ErrorResponse(HttpStatus.CONFLICT, errorMessage)
                         ))
                 );
@@ -144,21 +145,13 @@ class EmployeeControllerTest {
 
         mockMvc.perform(post("/company/employee")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(toJsonString(employee)))
+                .content(TestUtils.objectToJsonString(employee)))
                 .andDo(print())
                 .andExpect(
-                        content().json(toJsonString(
+                        content().json(TestUtils.objectToJsonString(
                                 new ErrorResponse(HttpStatus.CONFLICT, errorMessage)
                         ))
                 );
         verify(service, times(1)).save(employee);
-    }
-
-    private String toJsonString(Object o) {
-        try {
-            return new ObjectMapper().writeValueAsString(o);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

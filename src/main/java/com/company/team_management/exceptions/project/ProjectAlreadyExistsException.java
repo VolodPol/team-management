@@ -1,12 +1,12 @@
-package com.company.team_management.exceptions;
+package com.company.team_management.exceptions.project;
 
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class EmployeeAlreadyExistsException extends RuntimeException{
+public class ProjectAlreadyExistsException extends RuntimeException {
     private String message;
 
-    public EmployeeAlreadyExistsException(String message) {
+    public ProjectAlreadyExistsException(String message) {
         super(message);
         this.message = message;
     }

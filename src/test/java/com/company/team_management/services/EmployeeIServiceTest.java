@@ -1,9 +1,11 @@
 package com.company.team_management.services;
 
 import com.company.team_management.EmployeeProvider;
+import com.company.team_management.TestUtils;
+import com.company.team_management.TestEntityProvider;
 import com.company.team_management.entities.Employee;
-import com.company.team_management.exceptions.EmployeeAlreadyExistsException;
-import com.company.team_management.exceptions.NoSuchEmployeeException;
+import com.company.team_management.exceptions.employee.EmployeeAlreadyExistsException;
+import com.company.team_management.exceptions.employee.NoSuchEmployeeException;
 import com.company.team_management.repositories.EmployeeRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,13 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class EmployeeServiceTest {
+class EmployeeIServiceTest {
     @Mock
     private EmployeeRepository repository;
     @InjectMocks
@@ -32,10 +33,11 @@ class EmployeeServiceTest {
     private Employee employee1;
     private Employee employee2;
     private List<Employee> employeeList;
+    private final TestEntityProvider<Employee> entityProvider = new EmployeeProvider();
 
     @BeforeEach
     public void setUp() {
-        employeeList = EmployeeProvider.generateListOfSeveralEmployees();
+        employeeList = entityProvider.generateEntityList();
         employee1 = employeeList.get(0);
         employee2 = employeeList.get(1);
     }
@@ -54,7 +56,7 @@ class EmployeeServiceTest {
 
     @Test
     public void findBySpecificId() {
-        final int id = generateRandomId();
+        final int id = TestUtils.generateId();
         employee2.setId(id);
         when(repository.findById(id)).thenReturn(Optional.ofNullable(employee2));
 
@@ -75,7 +77,7 @@ class EmployeeServiceTest {
 
     @Test
     public void saveThrowsExceptionIfEmployeeAlreadyExists() {
-        employee1.setId(generateRandomId());
+        employee1.setId(TestUtils.generateId());
         when(repository.findById(employee1.getId())).thenReturn(Optional.ofNullable(employee1));
 
         assertThrows(EmployeeAlreadyExistsException.class, () -> service.save(employee1));
@@ -85,7 +87,7 @@ class EmployeeServiceTest {
 
     @Test
     public void saveNewEmployeeWithId() {
-        employee2.setId(generateRandomId());
+        employee2.setId(TestUtils.generateId());
         when(repository.findById(employee2.getId())).thenReturn(Optional.empty());
         when(repository.save(employee2)).thenReturn(employee2);
 
@@ -96,7 +98,7 @@ class EmployeeServiceTest {
 
     @Test
     public void deleteExistingEmployeeById() {
-        employee2.setId(generateRandomId());
+        employee2.setId(TestUtils.generateId());
         when(repository.findById(employee2.getId())).thenReturn(Optional.ofNullable(employee2));
 
         service.deleteById(employee2.getId());
@@ -106,7 +108,7 @@ class EmployeeServiceTest {
 
     @Test
     public void deleteNonExistingEmployeeById() {
-        final int id = generateRandomId();
+        final int id = TestUtils.generateId();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchEmployeeException.class, () -> service.deleteById(id));
@@ -115,7 +117,7 @@ class EmployeeServiceTest {
 
     @Test
     public void updateNonExistingEmployee() {
-        employee1.setId(generateRandomId());
+        employee1.setId(TestUtils.generateId());
         when(repository.findById(employee1.getId()))
                 .thenReturn(Optional.empty());
 
@@ -125,7 +127,7 @@ class EmployeeServiceTest {
 
     @Test
     public void updateExistingEmployee() {
-        final int id = generateRandomId();
+        final int id = TestUtils.generateId();
         employee1.setId(id);
 
         when(repository.findById(id)).thenReturn(Optional.ofNullable(employee1));
@@ -136,11 +138,6 @@ class EmployeeServiceTest {
 
         assertEquals(modified, service.updateById(id, modified));
         verify(repository, times(1)).save(any(Employee.class));
-    }
-
-    private int generateRandomId() {
-        return ThreadLocalRandom.current()
-                .nextInt(0, 10);
     }
 
     private Employee copyOf(Employee employee) {

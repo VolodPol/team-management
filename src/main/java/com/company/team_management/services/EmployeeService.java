@@ -1,17 +1,16 @@
 package com.company.team_management.services;
 
 import com.company.team_management.entities.Employee;
-import com.company.team_management.exceptions.EmployeeAlreadyExistsException;
-import com.company.team_management.exceptions.NoSuchEmployeeException;
+import com.company.team_management.exceptions.employee.EmployeeAlreadyExistsException;
+import com.company.team_management.exceptions.employee.NoSuchEmployeeException;
 import com.company.team_management.repositories.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 @Service
-public class EmployeeService implements IEmployeeService {
+public class EmployeeService implements IService<Employee> {
     private final EmployeeRepository employeeRepository;
 
     @Autowired
@@ -63,10 +62,5 @@ public class EmployeeService implements IEmployeeService {
         setNullable(found::setType, employee.getType());
 
         return employeeRepository.save(found);
-    }
-
-    private <T> void setNullable(Consumer<T> setter, T value) {
-        if (value != null)
-            setter.accept(value);
     }
 }
