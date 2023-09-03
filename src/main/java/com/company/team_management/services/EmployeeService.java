@@ -60,6 +60,7 @@ public class EmployeeService implements IService<Employee> {
         setNullable(found::setOccupation, employee.getOccupation());
         setNullable(found::setLevel, employee.getLevel());
         setNullable(found::setType, employee.getType());
+        setNullable(found::setProjects, employee.getProjects());
 
         return employeeRepository.save(found);
     }

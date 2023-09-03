@@ -2,12 +2,12 @@ package com.company.team_management.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -31,14 +31,10 @@ public class Project {
     @NotNull
     private Boolean finished;
 
-    @ManyToMany(mappedBy = "projects", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ToString.Exclude
+    @ManyToMany(mappedBy = "projects")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private Set<Employee> employees = new HashSet<>();
-
-    public void addEmployee(Employee employee) {
-        employees.add(employee);
-        employee.addProject(this);
-    }
 
     public Project(Builder builder) {
         this.id = builder.id;
@@ -79,8 +75,24 @@ public class Project {
             this.finished = finished;
             return this;
         }
+
         public Project build() {
             return new Project(this);
         }
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+
+        Project project = (Project) object;
+
+        return Objects.equals(id, project.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }
