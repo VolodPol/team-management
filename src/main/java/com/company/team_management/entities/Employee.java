@@ -13,10 +13,12 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "employee")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @NotNull
@@ -45,36 +47,16 @@ public class Employee {
             inverseJoinColumns = @JoinColumn(name = "project_id"))
     private Set<Project> projects = new HashSet<>();
 
-
-    @Getter
     public enum Occupation {
-        PROGRAMMER("programmer"), MANAGER("manager");
-
-        private final String occupation;
-        Occupation(String occupation) {
-            this.occupation = occupation;
-        }
+        PROGRAMMER, MANAGER
     }
 
-    @Getter
     public enum Level {
-        JUNIOR("junior"), MIDDLE("middle"), SENIOR("senior");
-
-        private final String level;
-
-        Level(String level) {
-            this.level = level;
-        }
+        JUNIOR, MIDDLE, SENIOR
     }
 
-    @Getter
     public enum Type {
-        DEVELOPER("developer"), QA("QA"), DEVOPS("DevOps");
-        private final String type;
-
-        Type(String type) {
-            this.type = type;
-        }
+        DEVELOPER, QA, DEVOPS
     }
 
     private Employee(Builder builder) {
@@ -137,19 +119,5 @@ public class Employee {
         public Employee build() {
             return new Employee(this);
         }
-    }
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-
-        Employee employee = (Employee) object;
-
-        return Objects.equals(id, employee.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
     }
 }

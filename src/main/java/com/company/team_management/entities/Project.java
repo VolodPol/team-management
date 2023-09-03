@@ -13,10 +13,12 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "project")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @NotNull
@@ -79,20 +81,5 @@ public class Project {
         public Project build() {
             return new Project(this);
         }
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-
-        Project project = (Project) object;
-
-        return Objects.equals(id, project.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
     }
 }

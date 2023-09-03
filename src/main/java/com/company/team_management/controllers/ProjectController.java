@@ -1,5 +1,7 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.dto.ProjectDTO;
+import com.company.team_management.dto.ProjectMapper;
 import com.company.team_management.entities.Project;
 import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.project.NoSuchProjectException;
@@ -16,25 +18,32 @@ import java.util.List;
 @RestController
 public class ProjectController {
     private final IService<Project> service;
+    private final ProjectMapper mapper;
 
     @Autowired
-    public ProjectController(ProjectService service) {
+    public ProjectController(ProjectService service, ProjectMapper mapper) {
         this.service = service;
+        this.mapper = mapper;
     }
 
     @GetMapping(value = "company/projects", produces = "application/json")
-    public ResponseEntity<List<Project>> getAll() {
-        return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<ProjectDTO>> getAll() {
+        List<ProjectDTO> dtoList = service.findAll().stream()
+                .map(mapper::toDTO)
+                .toList();
+        return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 
     @GetMapping(value = "company/project/{id}", produces = "application/json")
-    public ResponseEntity<Project> findById(@PathVariable int id) {
-        return new ResponseEntity<>(service.findById(id), HttpStatus.FOUND);
+    public ResponseEntity<ProjectDTO> findById(@PathVariable int id) {
+        ProjectDTO dto = mapper.toDTO(service.findById(id));
+        return new ResponseEntity<>(dto, HttpStatus.FOUND);
     }
 
     @PostMapping(value = "company/project", consumes = "application/json")
-    public ResponseEntity<Project> addProject(@RequestBody Project project) {
-        return new ResponseEntity<>(service.save(project), HttpStatus.CREATED);
+    public ResponseEntity<ProjectDTO> addProject(@RequestBody Project project) {
+        ProjectDTO dto = mapper.toDTO(service.save(project));
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
     @DeleteMapping("company/project/{id}")
@@ -44,8 +53,9 @@ public class ProjectController {
     }
 
     @PutMapping(value = "company/project/{id}", consumes = "application/json")
-    public ResponseEntity<Project> updateProject(@PathVariable int id, @RequestBody Project updated) {
-        return new ResponseEntity<>(service.updateById(id, updated), HttpStatus.OK);
+    public ResponseEntity<ProjectDTO> updateProject(@PathVariable int id, @RequestBody Project updated) {
+        ProjectDTO dto = mapper.toDTO(service.updateById(id, updated));
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @ExceptionHandler(value = {NoSuchProjectException.class, ProjectAlreadyExistsException.class})

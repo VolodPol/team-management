@@ -1,5 +1,7 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.dto.EmployeeDTO;
+import com.company.team_management.dto.EmployeeMapper;
 import com.company.team_management.entities.Employee;
 import com.company.team_management.exceptions.employee.EmployeeAlreadyExistsException;
 import com.company.team_management.exceptions.ErrorResponse;
@@ -16,28 +18,31 @@ import java.util.List;
 @RestController
 public class EmployeeController {
     private final IService<Employee> service;
+    private final EmployeeMapper mapper;
     @Autowired
-    public EmployeeController(EmployeeService service) {
+    public EmployeeController(EmployeeService service, EmployeeMapper mapper) {
         this.service = service;
+        this.mapper = mapper;
     }
 
     @PostMapping(value = "company/employee", consumes = "application/json")
-    public ResponseEntity<Employee> addEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<EmployeeDTO> addEmployee(@RequestBody Employee employee) {
         Employee newEmployee = service.save(employee);
-        return new ResponseEntity<>(newEmployee, HttpStatus.CREATED);
+        return new ResponseEntity<>(mapper.toDTO(newEmployee), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "company/employees", produces = "application/json")
-    public ResponseEntity<List<Employee>> getAllEmployees() {
-        return new ResponseEntity<>(
-                service.findAll(), HttpStatus.OK
-        );
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
+        List<EmployeeDTO> dtoList = service.findAll().stream()
+                .map(mapper::toDTO)
+                .toList();
+        return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 
     @GetMapping(value = "company/employee/{id}", produces = "application/json")
-    public ResponseEntity<Employee> findById(@PathVariable int id) {
+    public ResponseEntity<EmployeeDTO> findById(@PathVariable int id) {
         Employee foundEmp = service.findById(id);
-        return new ResponseEntity<>(foundEmp,  HttpStatus.FOUND);
+        return new ResponseEntity<>(mapper.toDTO(foundEmp),  HttpStatus.FOUND);
     }
 
     @DeleteMapping(value = "company/employee/{id}")
@@ -49,10 +54,11 @@ public class EmployeeController {
     }
 
     @PutMapping(value = "company/employee/{id}", consumes = "application/json")
-    public ResponseEntity<Employee> updateById(@PathVariable int id,
+    public ResponseEntity<EmployeeDTO> updateById(@PathVariable int id,
                                                @RequestBody Employee employee) {
+        EmployeeDTO dto = mapper.toDTO(service.updateById(id, employee));
         return new ResponseEntity<>(
-                service.updateById(id, employee), HttpStatus.OK
+                dto, HttpStatus.OK
         );
     }
 
