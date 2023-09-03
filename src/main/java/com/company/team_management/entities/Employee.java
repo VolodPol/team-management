@@ -2,13 +2,12 @@ package com.company.team_management.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -21,7 +20,7 @@ public class Employee {
     private Integer id;
 
     @NotNull
-    @Column(name = "full_name")
+    @Column(name = "full_name", length = 64)
     private String fullName;
 
     private String email;
@@ -38,7 +37,8 @@ public class Employee {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    @ManyToMany
+    @ToString.Exclude
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinTable(name = "employee_has_project",
             joinColumns = @JoinColumn(name = "employee_id"),
@@ -88,7 +88,12 @@ public class Employee {
 
     public void addProject(Project project) {
         projects.add(project);
-        project.addEmployee(this);
+        project.getEmployees().add(this);
+    }
+
+    public void removeProject(Project project) {
+        projects.remove(project);
+        project.getEmployees().remove(this);
     }
 
     public static final class Builder {
@@ -132,5 +137,19 @@ public class Employee {
         public Employee build() {
             return new Employee(this);
         }
+    }
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+
+        Employee employee = (Employee) object;
+
+        return Objects.equals(id, employee.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

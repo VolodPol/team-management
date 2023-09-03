@@ -39,7 +39,7 @@ public class ProjectService implements IService<Project> {
     public Project findById(int id) {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new NoSuchProjectException(
-                        String.format("There is no employee with id = %d", id)
+                        String.format("There is no project with id = %d", id)
                 ));
     }
 

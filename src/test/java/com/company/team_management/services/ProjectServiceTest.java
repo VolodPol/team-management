@@ -105,10 +105,10 @@ class ProjectServiceTest {
         int id = TestUtils.generateId();
         project.setId(id);
         when(repository.findById(id))
-                .thenThrow(new NoSuchProjectException(String.format("There is no employee with id = %d", id)));
+                .thenThrow(new NoSuchProjectException(String.format("There is no project with id = %d", id)));
 
         assertThrowsExactly(NoSuchProjectException.class, () -> service.deleteById(id),
-                String.format("There is no employee with id = %d", id));
+                String.format("There is no project with id = %d", id));
         verify(repository, times(1)).findById(id);
     }
 
