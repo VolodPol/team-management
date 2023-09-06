@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -63,8 +62,9 @@ class EmployeeControllerTest {
         when(mapper.toDTO(employee)).thenReturn(dto);
         mockMvc.perform(post("/company/employee")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
-                .andExpect(status().isCreated());
+                        .content(TestUtils.objectToJsonString(employee)))
+                .andExpect(status().isCreated())
+                .andExpect(content().json(TestUtils.objectToJsonString(dto)));
 
         verify(service, times(1)).save(employee);
     }
@@ -76,9 +76,7 @@ class EmployeeControllerTest {
         when(mapper.toDTO(employee)).thenReturn(dto);
         List<EmployeeDTO> dtoList = empToDTOList(fetched);
 
-        mockMvc.perform(get("/company/employees")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dtoList)))
+        mockMvc.perform(get("/company/employees"))
                 .andExpectAll(
                         status().isOk(),
                         content().json(TestUtils.objectToJsonString(dtoList))
@@ -91,14 +89,13 @@ class EmployeeControllerTest {
         when(service.findById(employee.getId())).thenReturn(employee);
         when(mapper.toDTO(employee)).thenReturn(dto);
 
-        mockMvc.perform(get("/company/employee/{id}", employee.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
+        mockMvc.perform(get("/company/employee/{id}", employee.getId()))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(dto)),
                         status().isFound()
                 );
         verify(service, times(1)).findById(employee.getId());
+        verify(mapper, times(1)).toDTO(employee);
     }
 
     @Test
@@ -128,9 +125,10 @@ class EmployeeControllerTest {
 
         mockMvc.perform(put("/company/employee/{id}", employee.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(updatedDTO))
+                .content(TestUtils.objectToJsonString(updated))
         ).andExpectAll(status().isOk(), content().json(TestUtils.objectToJsonString(updatedDTO)));
         verify(service, times(1)).updateById(employee.getId(), employee);
+        verify(mapper, times(1)).toDTO(updated);
     }
 
 
@@ -140,9 +138,7 @@ class EmployeeControllerTest {
         when(service.findById(employee.getId()))
                 .thenThrow(new NoSuchEmployeeException(errorMessage));
 
-        mockMvc.perform(get("/company/employee/{id}", employee.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
+        mockMvc.perform(get("/company/employee/{id}", employee.getId()))
                 .andDo(print())
                 .andExpect(
                         content().json(TestUtils.objectToJsonString(
@@ -160,7 +156,7 @@ class EmployeeControllerTest {
 
         mockMvc.perform(post("/company/employee")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
+                        .content(TestUtils.objectToJsonString(employee)))
                 .andDo(print())
                 .andExpect(
                         content().json(TestUtils.objectToJsonString(

@@ -2,9 +2,9 @@ package com.company.team_management.services;
 
 import com.company.team_management.entities.Employee;
 import com.company.team_management.entities.Project;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ManagementService {
@@ -17,11 +17,28 @@ public class ManagementService {
         this.projectService = projectService;
     }
 
-    public Employee addEmpToProject(int projectId, Employee employee) {
+    @Transactional
+    public Employee addNewEmpToProject(int projectId, Employee employee) {
         Project project = projectService.findById(projectId);
         employee.addProject(project);
-        empService.save(employee);
 
-        return employee;
+        return empService.save(employee);
+    }
+
+    @Transactional
+    public Employee addEmpByIdToProject(int employeeId, int projectId) {
+        Employee emp = empService.findById(employeeId);
+        Project project = projectService.findById(projectId);
+
+        emp.addProject(project);
+        return emp;
+    }
+
+    @Transactional
+    public void removeProjectFromEmployee(int employeeId, int projectId) {
+        Employee emp = empService.findById(employeeId);
+        Project project = projectService.findById(projectId);
+
+        emp.removeProject(project);
     }
 }
