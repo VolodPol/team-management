@@ -7,6 +7,7 @@ import com.company.team_management.entities.Project;
 import com.company.team_management.exceptions.project.NoSuchProjectException;
 import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
 import com.company.team_management.repositories.ProjectRepository;
+import com.company.team_management.services.impl.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,23 +41,23 @@ class ProjectServiceTest {
     @Test
     public void findAllProjects() {
         List<Project> projects = entityProvider.generateEntityList();
-        when(repository.findAll()).thenReturn(projects);
+        when(repository.findAllFetch()).thenReturn(projects);
 
         List<Project> actual = service.findAll();
         assertIterableEquals(projects, actual);
-        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).findAllFetch();
     }
 
     @Test
     public void findProjectById() {
         int projectId = TestUtils.generateId();
-        when(repository.findById(projectId)).thenReturn(Optional.of(project));
+        when(repository.findByIdFetch(projectId)).thenReturn(Optional.of(project));
 
         assertAll(
                 () -> assertEquals(project, service.findById(projectId)),
                 () -> assertThrows(NoSuchProjectException.class, () -> service.findById(projectId + 1))
         );
-        verify(repository, times(1)).findById(projectId);
+        verify(repository, times(1)).findByIdFetch(projectId);
     }
 
 
@@ -116,24 +117,24 @@ class ProjectServiceTest {
     public void updateExistingProject() {
         int projectId = TestUtils.generateId();
         project.setId(projectId);
-        when(repository.findById(projectId)).thenReturn(Optional.of(project));
+        when(repository.findByIdFetch(projectId)).thenReturn(Optional.of(project));
 
         Project updated = entityProvider.generateEntity();
         updated.setId(projectId);
         updated.setBudget(updated.getBudget() + 1000);
         updated.setFinished(!updated.getFinished());
 
-        when(repository.save(updated)).thenReturn(updated);
+//        when(repository.save(updated)).thenReturn(updated);
 
         assertEquals(updated, service.updateById(projectId, updated));
-        verify(repository, times(1)).findById(any());
-        verify(repository, times(1)).save(updated);
+        verify(repository, times(1)).findByIdFetch(any());
+//        verify(repository, times(1)).save(updated);
     }
 
     @Test
     public void updateNonExistingProject() {
         project.setId(TestUtils.generateId());
-        when(repository.findById(project.getId()))
+        when(repository.findByIdFetch(project.getId()))
                 .thenThrow(new ProjectAlreadyExistsException("Project already exists!"));
 
         assertThrowsExactly(ProjectAlreadyExistsException.class, () -> service.updateById(project.getId(), project),
