@@ -10,7 +10,7 @@ import com.company.team_management.entities.Project;
 import com.company.team_management.exceptions.employee.EmployeeAlreadyExistsException;
 import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.employee.NoSuchEmployeeException;
-import com.company.team_management.services.EmployeeService;
+import com.company.team_management.services.impl.EmployeeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

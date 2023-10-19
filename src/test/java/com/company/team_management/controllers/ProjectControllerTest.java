@@ -10,7 +10,7 @@ import com.company.team_management.entities.Project;
 import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.project.NoSuchProjectException;
 import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
-import com.company.team_management.services.ProjectService;
+import com.company.team_management.services.impl.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

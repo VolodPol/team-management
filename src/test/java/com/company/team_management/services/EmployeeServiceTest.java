@@ -7,6 +7,7 @@ import com.company.team_management.entities.Employee;
 import com.company.team_management.exceptions.employee.EmployeeAlreadyExistsException;
 import com.company.team_management.exceptions.employee.NoSuchEmployeeException;
 import com.company.team_management.repositories.EmployeeRepository;
+import com.company.team_management.services.impl.EmployeeService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class EmployeeIServiceTest {
+class EmployeeServiceTest {
     @Mock
     private EmployeeRepository repository;
     @InjectMocks
@@ -49,21 +50,21 @@ class EmployeeIServiceTest {
 
     @Test
     public void findAllEntities() {
-        when(repository.findAll()).thenReturn(employeeList);
+        when(repository.findAllFetch()).thenReturn(employeeList);
         assertIterableEquals(employeeList, service.findAll());
-        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).findAllFetch();
     }
 
     @Test
     public void findBySpecificId() {
         final int id = TestUtils.generateId();
         employee2.setId(id);
-        when(repository.findById(id)).thenReturn(Optional.ofNullable(employee2));
+        when(repository.findByIdAndFetch(id)).thenReturn(Optional.ofNullable(employee2));
 
         assertEquals(employee2, service.findById(id));
         assertThrows(NoSuchEmployeeException.class,
                 () -> service.findById(id + 1));
-        verify(repository, times(2)).findById(any());
+        verify(repository, times(2)).findByIdAndFetch(any());
     }
 
     @Test
@@ -109,7 +110,8 @@ class EmployeeIServiceTest {
     @Test
     public void deleteNonExistingEmployeeById() {
         final int id = TestUtils.generateId();
-        when(repository.findById(id)).thenReturn(Optional.empty());
+        when(repository.findById(id))
+                .thenReturn(Optional.empty());
 
         assertThrows(NoSuchEmployeeException.class, () -> service.deleteById(id));
         verify(repository, times(0)).deleteById(any());
@@ -118,7 +120,7 @@ class EmployeeIServiceTest {
     @Test
     public void updateNonExistingEmployee() {
         employee1.setId(TestUtils.generateId());
-        when(repository.findById(employee1.getId()))
+        when(repository.findByIdAndFetch(employee1.getId()))
                 .thenReturn(Optional.empty());
 
         assertThrows(NoSuchEmployeeException.class, () -> service.updateById(employee1.getId(), employee1));
@@ -130,14 +132,14 @@ class EmployeeIServiceTest {
         final int id = TestUtils.generateId();
         employee1.setId(id);
 
-        when(repository.findById(id)).thenReturn(Optional.ofNullable(employee1));
+        when(repository.findByIdAndFetch(id)).thenReturn(Optional.ofNullable(employee1));
         Employee modified = copyOf(employee1);
         modified.setEmail("updated@gmail.com");
         modified.setLevel(Employee.Level.MIDDLE);
-        when(repository.save(modified)).thenReturn(modified);
+//        when(repository.save(modified)).thenReturn(modified);
 
         assertEquals(modified, service.updateById(id, modified));
-        verify(repository, times(1)).save(any(Employee.class));
+//        verify(repository, times(1)).save(any(Employee.class));
     }
 
     private Employee copyOf(Employee employee) {

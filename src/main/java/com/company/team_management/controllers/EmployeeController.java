@@ -6,7 +6,7 @@ import com.company.team_management.entities.Employee;
 import com.company.team_management.exceptions.employee.EmployeeAlreadyExistsException;
 import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.employee.NoSuchEmployeeException;
-import com.company.team_management.services.EmployeeService;
+import com.company.team_management.services.impl.EmployeeService;
 import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

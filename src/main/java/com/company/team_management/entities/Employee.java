@@ -1,6 +1,6 @@
 package com.company.team_management.entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -39,12 +39,14 @@ public class Employee {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    @ToString.Exclude
+    @JsonBackReference
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinTable(name = "employee_has_project",
             joinColumns = @JoinColumn(name = "employee_id"),
-            inverseJoinColumns = @JoinColumn(name = "project_id"))
+            inverseJoinColumns = @JoinColumn(name = "project_id"),
+            indexes = @Index(name = "emp_proj", columnList = "employee_id, project_id")
+    )
     private Set<Project> projects = new HashSet<>();
 
     public enum Occupation {

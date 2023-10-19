@@ -7,7 +7,7 @@ import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.project.NoSuchProjectException;
 import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
 import com.company.team_management.services.IService;
-import com.company.team_management.services.ProjectService;
+import com.company.team_management.services.impl.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

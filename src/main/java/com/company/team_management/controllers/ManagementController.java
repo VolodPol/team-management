@@ -3,7 +3,7 @@ package com.company.team_management.controllers;
 import com.company.team_management.dto.EmployeeDTO;
 import com.company.team_management.dto.EmployeeMapper;
 import com.company.team_management.entities.Employee;
-import com.company.team_management.services.ManagementService;
+import com.company.team_management.services.impl.ManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

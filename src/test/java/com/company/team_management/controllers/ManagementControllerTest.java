@@ -8,7 +8,7 @@ import com.company.team_management.dto.EmployeeDTO;
 import com.company.team_management.dto.EmployeeMapper;
 import com.company.team_management.entities.Employee;
 import com.company.team_management.entities.Project;
-import com.company.team_management.services.ManagementService;
+import com.company.team_management.services.impl.ManagementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

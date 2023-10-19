@@ -1,7 +1,8 @@
-package com.company.team_management.services;
+package com.company.team_management.services.impl;
 
 import com.company.team_management.entities.Employee;
 import com.company.team_management.entities.Project;
+import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +22,9 @@ public class ManagementService {
     public Employee addNewEmpToProject(int projectId, Employee employee) {
         Project project = projectService.findById(projectId);
         employee.addProject(project);
+        empService.save(employee);
 
-        return empService.save(employee);
+        return employee;
     }
 
     @Transactional
