@@ -1,6 +1,5 @@
 package com.company.team_management.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -39,7 +38,6 @@ public class Employee {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    @JsonBackReference
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinTable(name = "employee_has_project",

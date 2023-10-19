@@ -1,6 +1,5 @@
 package com.company.team_management.entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -33,7 +32,6 @@ public class Project {
     @NotNull
     private Boolean finished;
 
-    @JsonManagedReference
     @ManyToMany(mappedBy = "projects")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private Set<Employee> employees = new HashSet<>();
