@@ -1,13 +1,17 @@
-package com.company.team_management.services;
+package com.company.team_management.services.impl;
 
 import com.company.team_management.entities.Project;
 import com.company.team_management.exceptions.project.NoSuchProjectException;
 import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
 import com.company.team_management.repositories.ProjectRepository;
+import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Service
 public class ProjectService implements IService<Project> {
@@ -18,46 +22,52 @@ public class ProjectService implements IService<Project> {
         this.projectRepository = projectRepository;
     }
 
+    @Transactional
     @Override
     public Project save(Project project) {
-        if (project.getId() == null)
-            return projectRepository.save(project);
-
-        Project found = projectRepository.findById(project.getId()).orElse(null);
-        if (found != null)
+        Integer id = project.getId();
+        if (id != null && projectRepository.findById(id).orElse(null) != null) {
             throw new ProjectAlreadyExistsException("Project already exists!");
-
+        }
         return projectRepository.save(project);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Project> findAll() {
-        return projectRepository.findAll();
+        return projectRepository.findAllFetch();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Project findById(int id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new NoSuchProjectException(
-                        String.format("There is no project with id = %d", id)
-                ));
+        return findIfPresent(id, projectRepository::findByIdFetch);
     }
 
+    @Transactional
     @Override
     public void deleteById(int id) {
-        findById(id);
+        findIfPresent(id, projectRepository::findById);
         projectRepository.deleteById(id);
     }
 
+    @Transactional
     @Override
     public Project updateById(int id, Project project) {
-        Project found = findById(id);
+        Project found = findIfPresent(id, projectRepository::findByIdFetch);
 
         setNullable(found::setTitle, project.getTitle());
         setNullable(found::setGoal, project.getGoal());
         setNullable(found::setBudget, project.getBudget());
         setNullable(found::setFinished, project.getFinished());
 
-        return projectRepository.save(found);
+        return found;
+    }
+
+    private Project findIfPresent(int id, Function<Integer, Optional<Project>> finder) {
+        return finder.apply(id)
+                .orElseThrow(
+                        () -> new NoSuchProjectException(String.format("There is no project with id = %d", id))
+                );
     }
 }

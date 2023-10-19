@@ -3,11 +3,14 @@ package com.company.team_management.controllers;
 import com.company.team_management.ProjectProvider;
 import com.company.team_management.TestEntityProvider;
 import com.company.team_management.TestUtils;
+import com.company.team_management.dto.ProjectDTO;
+import com.company.team_management.dto.ProjectMapper;
+import com.company.team_management.entities.Employee;
 import com.company.team_management.entities.Project;
 import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.project.NoSuchProjectException;
 import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
-import com.company.team_management.services.ProjectService;
+import com.company.team_management.services.impl.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,10 +34,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ProjectControllerTest {
     @Mock
     private ProjectService service;
+    @Mock
+    private ProjectMapper mapper;
     @InjectMocks
     private ProjectController controller;
     private MockMvc mockMvc;
     private Project project;
+    private ProjectDTO dto;
     private final TestEntityProvider<Project> entityProvider = new ProjectProvider();
 
     @BeforeEach
@@ -44,48 +50,52 @@ class ProjectControllerTest {
                 .alwaysExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .build();
         project = entityProvider.generateEntity();
+        project.setId(TestUtils.generateId());
+        dto = projectToDTO(project);
     }
 
     @Test
     public void fetchAllProjects() throws Exception {
-        List<Project> projects = entityProvider.generateEntityList();
+        List<Project> projects = List.of(project);
+        List<ProjectDTO> dtoList = projectsToDTOList(projects);
         when(service.findAll()).thenReturn(projects);
+        when(mapper.toDTO(project)).thenReturn(dto);
 
         mockMvc.perform(get("/company/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(projects)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(dtoList)))
                 .andExpectAll(
                         status().isOk(),
-                        content().json(TestUtils.objectToJsonString(projects))
-                        );
+                        content().json(TestUtils.objectToJsonString(dtoList))
+                );
         verify(service, times(1)).findAll();
     }
 
     @Test
     public void findProjectById() throws Exception {
-        int projectId = TestUtils.generateId();
-        project.setId(projectId);
-        when(service.findById(projectId)).thenReturn(project);
+        when(service.findById(project.getId())).thenReturn(project);
+        when(mapper.toDTO(project)).thenReturn(dto);
 
-        mockMvc.perform(get("/company/project/{id}", projectId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(project)))
+        mockMvc.perform(get("/company/project/{id}", project.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(dto)))
                 .andExpectAll(
                         status().isFound(),
-                        content().json(TestUtils.objectToJsonString(project))
+                        content().json(TestUtils.objectToJsonString(dto))
                 );
-        verify(service, times(1)).findById(projectId);
+        verify(service, times(1)).findById(project.getId());
     }
 
     @Test
     public void addNewProject() throws Exception {
         when(service.save(project)).thenReturn(project);
+        when(mapper.toDTO(project)).thenReturn(dto);
 
         mockMvc.perform(post("/company/project")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(project)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(dto)))
                 .andExpectAll(
-                        content().json(TestUtils.objectToJsonString(project)),
+                        content().json(TestUtils.objectToJsonString(dto)),
                         status().isCreated()
                 );
         verify(service, times(1)).save(project);
@@ -93,11 +103,10 @@ class ProjectControllerTest {
 
     @Test
     public void deleteExistingProjectById() throws Exception {
-        project.setId(TestUtils.generateId());
         doNothing().when(service).deleteById(project.getId());
 
         mockMvc.perform(delete("/company/project/{id}", project.getId())
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         content().string("Successfully deleted!"),
                         status().isNoContent()
@@ -107,19 +116,20 @@ class ProjectControllerTest {
 
     @Test
     public void updateExistingProject() throws Exception {
-        project.setId(TestUtils.generateId());
         Project toUpdate = entityProvider.generateEntity();
         toUpdate.setId(project.getId());
         toUpdate.setFinished(!toUpdate.getFinished());
+        ProjectDTO updatedDto = projectToDTO(toUpdate);
 
         when(service.updateById(toUpdate.getId(), toUpdate))
                 .thenReturn(toUpdate);
+        when(mapper.toDTO(toUpdate)).thenReturn(updatedDto);
 
         mockMvc.perform(put("/company/project/{id}", project.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(toUpdate)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(updatedDto)))
                 .andExpectAll(
-                        content().json(TestUtils.objectToJsonString(toUpdate)),
+                        content().json(TestUtils.objectToJsonString(updatedDto)),
                         status().isOk()
                 );
         verify(service, times(1)).updateById(toUpdate.getId(), toUpdate);
@@ -127,13 +137,13 @@ class ProjectControllerTest {
 
     @Test
     public void handleNoSuchProjectException() throws Exception {
-        int id = TestUtils.generateId();
+        int id = project.getId();
         when(service.findById(id))
                 .thenThrow(new NoSuchProjectException(String.format("There is no employee with id = %d", id)));
 
         mockMvc.perform(get("/company/project/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(project)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(dto)))
                 .andExpect(
                         content().json(TestUtils.objectToJsonString(
                                 new ErrorResponse(
@@ -151,8 +161,8 @@ class ProjectControllerTest {
                 .thenThrow(new ProjectAlreadyExistsException("Project already exists!"));
 
         mockMvc.perform(post("/company/project")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(project)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(dto)))
                 .andExpect(
                         content().json(
                                 TestUtils.objectToJsonString(
@@ -164,5 +174,24 @@ class ProjectControllerTest {
                         )
                 );
         verify(service, times(1)).save(project);
+    }
+
+    private ProjectDTO projectToDTO(Project project) {
+        return new ProjectDTO(
+                project.getId(),
+                project.getTitle(),
+                project.getGoal(),
+                String.valueOf(project.getBudget()),
+                project.getFinished(),
+                project.getEmployees().stream()
+                        .map(Employee::getFullName)
+                        .toList()
+                );
+    }
+
+    private List<ProjectDTO> projectsToDTOList(List<Project> projects) {
+        return projects.stream()
+                .map(this::projectToDTO)
+                .toList();
     }
 }

@@ -3,11 +3,14 @@ package com.company.team_management.controllers;
 import com.company.team_management.EmployeeProvider;
 import com.company.team_management.TestEntityProvider;
 import com.company.team_management.TestUtils;
+import com.company.team_management.dto.EmployeeDTO;
+import com.company.team_management.dto.EmployeeMapper;
 import com.company.team_management.entities.Employee;
+import com.company.team_management.entities.Project;
 import com.company.team_management.exceptions.employee.EmployeeAlreadyExistsException;
 import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.employee.NoSuchEmployeeException;
-import com.company.team_management.services.EmployeeService;
+import com.company.team_management.services.impl.EmployeeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,7 +38,10 @@ class EmployeeControllerTest {
     private EmployeeController controller;
     @Mock
     private EmployeeService service;
+    @Mock
+    private EmployeeMapper mapper;
     private Employee employee;
+    private EmployeeDTO dto;
     private final TestEntityProvider<Employee> entityProvider = new EmployeeProvider();
 
 
@@ -46,31 +52,34 @@ class EmployeeControllerTest {
                 .alwaysExpect(content().contentType("application/json"))
                 .build();
         employee = entityProvider.generateEntity();
-        employee.setId(ThreadLocalRandom.current().nextInt(0, 10));
+        employee.setId(TestUtils.generateId());
+        dto = empToDTO(employee);
     }
 
     @Test
     public void postEmployee() throws Exception {
         when(service.save(any())).thenReturn(employee);
+        when(mapper.toDTO(employee)).thenReturn(dto);
         mockMvc.perform(post("/company/employee")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(employee)))
-                .andExpect(status().isCreated());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(employee)))
+                .andExpect(status().isCreated())
+                .andExpect(content().json(TestUtils.objectToJsonString(dto)));
 
         verify(service, times(1)).save(employee);
     }
 
     @Test
     public void getAllEmployees() throws Exception {
-        List<Employee> fetched = entityProvider.generateEntityList();
+        List<Employee> fetched = List.of(employee);
         when(service.findAll()).thenReturn(fetched);
+        when(mapper.toDTO(employee)).thenReturn(dto);
+        List<EmployeeDTO> dtoList = empToDTOList(fetched);
 
-        mockMvc.perform(get("/company/employees")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(fetched)))
+        mockMvc.perform(get("/company/employees"))
                 .andExpectAll(
                         status().isOk(),
-                        content().json(TestUtils.objectToJsonString(fetched))
+                        content().json(TestUtils.objectToJsonString(dtoList))
                 );
         verify(service, times(1)).findAll();
     }
@@ -78,19 +87,19 @@ class EmployeeControllerTest {
     @Test
     public void findExistingEmployeeByIdReturnsFound() throws Exception {
         when(service.findById(employee.getId())).thenReturn(employee);
+        when(mapper.toDTO(employee)).thenReturn(dto);
 
-        mockMvc.perform(get("/company/employee/{id}", employee.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(employee)))
+        mockMvc.perform(get("/company/employee/{id}", employee.getId()))
                 .andExpectAll(
-                        content().json(TestUtils.objectToJsonString(employee)),
+                        content().json(TestUtils.objectToJsonString(dto)),
                         status().isFound()
                 );
         verify(service, times(1)).findById(employee.getId());
+        verify(mapper, times(1)).toDTO(employee);
     }
 
     @Test
-    public void deleteEmployeeById() throws Exception{
+    public void deleteEmployeeById() throws Exception {
         doNothing().when(service).deleteById(employee.getId());
 
         mockMvc.perform(delete("/company/employee/{id}", employee.getId()))
@@ -108,14 +117,18 @@ class EmployeeControllerTest {
         updated.setId(employee.getId());
         updated.setEmail("updated@gmail.com");
         updated.setLevel(Employee.Level.MIDDLE);
+        EmployeeDTO updatedDTO = empToDTO(updated);
 
-        when(service.updateById(employee.getId(), employee)).thenReturn(updated);
+        when(service.updateById(employee.getId(), updated)).thenReturn(updated);
+        when(mapper.toDTO(updated))
+                .thenAnswer(invocationOnMock -> empToDTO(invocationOnMock.getArgument(0)));
 
         mockMvc.perform(put("/company/employee/{id}", employee.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(employee))
-        ).andExpectAll(status().isOk(), content().json(TestUtils.objectToJsonString(updated)));
+                .content(TestUtils.objectToJsonString(updated))
+        ).andExpectAll(status().isOk(), content().json(TestUtils.objectToJsonString(updatedDTO)));
         verify(service, times(1)).updateById(employee.getId(), employee);
+        verify(mapper, times(1)).toDTO(updated);
     }
 
 
@@ -125,9 +138,7 @@ class EmployeeControllerTest {
         when(service.findById(employee.getId()))
                 .thenThrow(new NoSuchEmployeeException(errorMessage));
 
-        mockMvc.perform(get("/company/employee/{id}", employee.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(employee)))
+        mockMvc.perform(get("/company/employee/{id}", employee.getId()))
                 .andDo(print())
                 .andExpect(
                         content().json(TestUtils.objectToJsonString(
@@ -144,8 +155,8 @@ class EmployeeControllerTest {
                 .thenThrow(new EmployeeAlreadyExistsException(errorMessage));
 
         mockMvc.perform(post("/company/employee")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(employee)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(employee)))
                 .andDo(print())
                 .andExpect(
                         content().json(TestUtils.objectToJsonString(
@@ -153,5 +164,25 @@ class EmployeeControllerTest {
                         ))
                 );
         verify(service, times(1)).save(employee);
+    }
+
+    private EmployeeDTO empToDTO(Employee employee) {
+        return new EmployeeDTO(
+                employee.getId(),
+                employee.getFullName(),
+                employee.getEmail(),
+                employee.getOccupation().toString(),
+                employee.getLevel().toString(),
+                employee.getType().toString(),
+                employee.getProjects().stream()
+                        .map(Project::getTitle)
+                        .toList()
+        );
+    }
+
+    private List<EmployeeDTO> empToDTOList(List<Employee> employees) {
+        return employees.stream()
+                .map(this::empToDTO)
+                .toList();
     }
 }
