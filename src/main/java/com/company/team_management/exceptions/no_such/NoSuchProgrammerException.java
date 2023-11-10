@@ -1,12 +1,12 @@
-package com.company.team_management.exceptions.employee;
+package com.company.team_management.exceptions.no_such;
 
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class NoSuchEmployeeException extends RuntimeException {
+public class NoSuchProgrammerException extends RuntimeException {
     private String message;
 
-    public NoSuchEmployeeException(String message) {
+    public NoSuchProgrammerException(String message) {
         super(message);
         this.message = message;
     }

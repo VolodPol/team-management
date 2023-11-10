@@ -1,8 +1,8 @@
 package com.company.team_management.repositories;
 
-import com.company.team_management.EmployeeProvider;
-import com.company.team_management.TestEntityProvider;
-import com.company.team_management.entities.Employee;
+import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
+import com.company.team_management.utils.test_data_provider.TestEntityProvider;
+import com.company.team_management.entities.Programmer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,69 +17,69 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
 @DataJpaTest
+@ExtendWith(SpringExtension.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class EmployeeRepositoryTest {
+class ProgrammerRepositoryTest {
 
     @Autowired
-    private EmployeeRepository repository;
-    private Employee employee;
-    private final TestEntityProvider<Employee> entityProvider = new EmployeeProvider();
+    private ProgrammerRepository repository;
+    private Programmer programmer;
+    private final TestEntityProvider<Programmer> entityProvider = new ProgrammerProvider();
 
     @BeforeEach
     public void setUp() {
         repository.deleteAllInBatch();
-        employee = entityProvider.generateEntity();
+        programmer = entityProvider.generateEntity();
     }
 
     @AfterEach
     public void tearDown() {
         repository.deleteAll();
-        employee = null;
+        programmer = null;
     }
 
     @Test
     public void saveProductCase() {
-        Employee found = repository
+        Programmer found = repository
                 .findById(extractIdOfSavedEmployee())
                 .orElse(null);
 
-        assertEquals(employee, found);
+        assertEquals(programmer, found);
     }
 
     @Test
     public void getAllCase() {
-        List<Employee> employeeList = entityProvider.generateEntityList();
-        repository.saveAll(employeeList);
+        List<Programmer> programmerList = entityProvider.generateEntityList();
+        repository.saveAll(programmerList);
 
-        List<Employee> fetched = repository.findAll();
+        List<Programmer> fetched = repository.findAll();
         assertAll(
-                () -> assertEquals(employeeList.get(0).getEmail(), fetched.get(0).getEmail()),
-                () -> assertEquals(employeeList.get(1).getFullName(), fetched.get(1).getFullName())
+                () -> assertEquals(programmerList.get(0).getEmail(), fetched.get(0).getEmail()),
+                () -> assertEquals(programmerList.get(1).getFullName(), fetched.get(1).getFullName())
         );
     }
 
     @Test
     public void getByIdCase() {
         int id = extractIdOfSavedEmployee();
-        Employee actual = repository.findById(id)
+        Programmer actual = repository.findById(id)
                 .orElse(null);
 
-        assertEquals(employee, actual);
+        assertEquals(programmer, actual);
     }
 
     @Test
     public void updateExistingEmployeeCase() {
         int id = extractIdOfSavedEmployee();
         String newName = "jeremy";
-        Employee.Level newLevel = Employee.Level.MIDDLE;
+        Programmer.Level newLevel = Programmer.Level.MIDDLE;
 
-        employee.setFullName(newName);
-        employee.setLevel(newLevel);
-        repository.save(employee);
+        programmer.setFullName(newName);
+        programmer.setLevel(newLevel);
+        repository.save(programmer);
 
-        Employee changed = repository.findById(id).orElse(new Employee());
+        Programmer changed = repository.findById(id).orElse(new Programmer());
         assertEquals(newName, changed.getFullName());
         assertEquals(newLevel, changed.getLevel());
     }
@@ -92,7 +92,7 @@ class EmployeeRepositoryTest {
     }
 
     private int extractIdOfSavedEmployee() {
-        repository.save(employee);
-        return employee.getId();
+        repository.save(programmer);
+        return programmer.getId();
     }
 }

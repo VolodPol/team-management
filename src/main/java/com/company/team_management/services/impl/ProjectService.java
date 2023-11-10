@@ -1,8 +1,8 @@
 package com.company.team_management.services.impl;
 
 import com.company.team_management.entities.Project;
-import com.company.team_management.exceptions.project.NoSuchProjectException;
-import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
+import com.company.team_management.exceptions.no_such.NoSuchProjectException;
+import com.company.team_management.exceptions.already_exists.ProjectAlreadyExistsException;
 import com.company.team_management.repositories.ProjectRepository;
 import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,6 @@ public class ProjectService implements IService<Project> {
         setNullable(found::setTitle, project.getTitle());
         setNullable(found::setGoal, project.getGoal());
         setNullable(found::setBudget, project.getBudget());
-        setNullable(found::setFinished, project.getFinished());
 
         return found;
     }

@@ -1,144 +1,104 @@
 package com.company.team_management.controllers;
 
-import com.company.team_management.EmployeeProvider;
-import com.company.team_management.ProjectProvider;
-import com.company.team_management.TestEntityProvider;
-import com.company.team_management.TestUtils;
-import com.company.team_management.dto.EmployeeDTO;
-import com.company.team_management.dto.EmployeeMapper;
-import com.company.team_management.entities.Employee;
+import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
+import com.company.team_management.utils.test_data_provider.ProjectProvider;
+import com.company.team_management.utils.test_data_provider.TestEntityProvider;
+import com.company.team_management.utils.TestUtils;
+import com.company.team_management.dto.ProgrammerDto;
+import com.company.team_management.dto.mapper.impl.ProgrammerMapper;
+import com.company.team_management.entities.Programmer;
 import com.company.team_management.entities.Project;
 import com.company.team_management.services.impl.ManagementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+@WebMvcTest(ManagementController.class)
+@ComponentScan(basePackages = "com.company.team_management.dto.mapper")
 public class ManagementControllerTest {
-
+    @Autowired
     private MockMvc mvc;
     @Autowired
-    @InjectMocks
-    private ManagementController controller;
-    @Mock
+    private ProgrammerMapper mapper;
+    @MockBean
     private ManagementService service;
-    @Mock
-    private EmployeeMapper mapper;
-    private Employee employee;
+    private Programmer programmer;
     private Project project;
-    private final TestEntityProvider<Employee> empProvider;
+    private final TestEntityProvider<Programmer> programmerProvider;
     private final TestEntityProvider<Project> projectProvider;
 
     {
-        empProvider = new EmployeeProvider();
+        programmerProvider = new ProgrammerProvider();
         projectProvider = new ProjectProvider();
     }
 
     @BeforeEach
     public void setUp() {
-        mvc = MockMvcBuilders.standaloneSetup(controller)
-                .defaultRequest(get("/**").accept(MediaType.APPLICATION_JSON))
-                .alwaysExpect(content().contentType("application/json"))
-                .build();
-        employee = empProvider.generateEntity();
+        programmer = programmerProvider.generateEntity();
         project = projectProvider.generateEntity();
-        employee.setId(TestUtils.generateId());
+        programmer.setId(TestUtils.generateId());
         project.setId(TestUtils.generateId());
     }
 
     @Test
     public void addNewEmpToExistingProjectById() throws Exception {
-        Employee initCopy = shallowCopy(employee);
-        employee.addProject(project);
-        EmployeeDTO updated = empToDTO(employee);
+        Programmer initCopy = programmerProvider.generateEntity();
+        programmer.addProject(project);
+        ProgrammerDto updatedDto = mapper.toDto(programmer);
 
-        when(service.addNewEmpToProject(project.getId(), initCopy)).thenReturn(employee);
-        when(mapper.toDTO(employee)).thenReturn(updated);
+        when(service.addNewProgrammerToProject(project.getId(), initCopy)).thenReturn(programmer);
 
         mvc.perform(post("/company/manage/addProject/{id}", project.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(initCopy)))
-                .andExpect(content().json(TestUtils.objectToJsonString(updated)))
+                .andExpect(content().json(TestUtils.objectToJsonString(updatedDto)))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        verify(service, times(1)).addNewEmpToProject(project.getId(), initCopy);
-        verify(mapper, times(1)).toDTO(employee);
+        verify(service, times(1)).addNewProgrammerToProject(project.getId(), initCopy);
     }
 
 
     @Test
-    public void addExistingEmployeeToProjectByIds() throws Exception {
-        employee.addProject(project);
-        EmployeeDTO updated = empToDTO(employee);
+    public void addExistingProgrammerToProjectByIds() throws Exception {
+        programmer.addProject(project);
+        ProgrammerDto updated = mapper.toDto(programmer);
+        when(service.addProgrammerByIdToProject(programmer.getId(), project.getId()))
+                .thenReturn(programmer);
 
-        when(service.addEmpByIdToProject(employee.getId(), project.getId()))
-                .thenReturn(employee);
-        when(mapper.toDTO(employee)).thenReturn(updated);
-
-        mvc.perform(post("/company/manage/addProject?employee={empId}&project={projectId}",
-                employee.getId(), project.getId()))
+        mvc.perform(post("/company/manage/addProject?programmer={empId}&project={projectId}",
+                programmer.getId(), project.getId()))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(updated)),
                         content().contentType(MediaType.APPLICATION_JSON),
                         status().isOk()
                 );
-        verify(service, times(1)).addEmpByIdToProject(employee.getId(), project.getId());
-        verify(mapper, times(1)).toDTO(employee);
+        verify(service, times(1)).addProgrammerByIdToProject(programmer.getId(), project.getId());
     }
 
     @Test
-    public void removeProjectFromEmployeeByIds() throws Exception {
-        doNothing().when(service).removeProjectFromEmployee(employee.getId(), project.getId());
+    public void removeProjectFromProgrammerByIds() throws Exception {
+        doNothing().when(service).removeProjectFromProgrammer(programmer.getId(), project.getId());
         String message = String.format("Project with id = %d was deleted from user with id = %d",
-                project.getId(), employee.getId());
+                project.getId(), programmer.getId());
 
-        mvc.perform(post("/company/manage/removeProject?employee={id}&project={id}",
-                        employee.getId(), project.getId()))
+        mvc.perform(post("/company/manage/removeProject?programmer={id}&project={id}",
+                        programmer.getId(), project.getId()))
                 .andExpectAll(
                         content().string(message),
                         status().isOk()
                 );
         verify(service, times(1))
-                .removeProjectFromEmployee(employee.getId(), project.getId());
-    }
-
-    private Employee shallowCopy(Employee employee) {
-        return new Employee.Builder()
-                .addId(employee.getId())
-                .addFullName(employee.getFullName())
-                .addEmail(employee.getEmail())
-                .addType(employee.getType())
-                .addLevel(employee.getLevel())
-                .addOccupation(employee.getOccupation())
-                .build();
-    }
-
-    private EmployeeDTO empToDTO(Employee employee) {
-        return new EmployeeDTO(
-                employee.getId(),
-                employee.getFullName(),
-                employee.getEmail(),
-                employee.getOccupation().toString(),
-                employee.getLevel().toString(),
-                employee.getType().toString(),
-                employee.getProjects().stream()
-                        .map(Project::getTitle)
-                        .toList()
-        );
+                .removeProjectFromProgrammer(programmer.getId(), project.getId());
     }
 }
 

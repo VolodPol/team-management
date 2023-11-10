@@ -1,7 +1,7 @@
 package com.company.team_management.repositories;
 
-import com.company.team_management.ProjectProvider;
-import com.company.team_management.TestEntityProvider;
+import com.company.team_management.utils.test_data_provider.ProjectProvider;
+import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.entities.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,7 +77,7 @@ class ProjectRepositoryTest {
 
         Project toUpdate = repository.findById(project.getId()).orElseThrow();
         toUpdate.setBudget(toUpdate.getBudget() + 1000);
-        toUpdate.setFinished(!toUpdate.getFinished());
+//        toUpdate.setFinished(!toUpdate.getFinished());
         repository.save(toUpdate);
 
         assertEquals(toUpdate, repository.findById(project.getId()).orElse(null));

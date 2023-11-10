@@ -1,11 +1,11 @@
 package com.company.team_management.services;
 
-import com.company.team_management.ProjectProvider;
-import com.company.team_management.TestEntityProvider;
-import com.company.team_management.TestUtils;
+import com.company.team_management.utils.test_data_provider.ProjectProvider;
+import com.company.team_management.utils.test_data_provider.TestEntityProvider;
+import com.company.team_management.utils.TestUtils;
 import com.company.team_management.entities.Project;
-import com.company.team_management.exceptions.project.NoSuchProjectException;
-import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
+import com.company.team_management.exceptions.no_such.NoSuchProjectException;
+import com.company.team_management.exceptions.already_exists.ProjectAlreadyExistsException;
 import com.company.team_management.repositories.ProjectRepository;
 import com.company.team_management.services.impl.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,13 +122,9 @@ class ProjectServiceTest {
         Project updated = entityProvider.generateEntity();
         updated.setId(projectId);
         updated.setBudget(updated.getBudget() + 1000);
-        updated.setFinished(!updated.getFinished());
-
-//        when(repository.save(updated)).thenReturn(updated);
 
         assertEquals(updated, service.updateById(projectId, updated));
         verify(repository, times(1)).findByIdFetch(any());
-//        verify(repository, times(1)).save(updated);
     }
 
     @Test

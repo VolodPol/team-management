@@ -7,14 +7,15 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "employee")
+@Table(name = "programmer")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
-public class Employee {
+public class Programmer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -24,11 +25,8 @@ public class Employee {
     @Column(name = "full_name", length = 64)
     private String fullName;
 
+    @Column(unique = true)
     private String email;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private Occupation occupation;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -40,16 +38,16 @@ public class Employee {
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinTable(name = "employee_has_project",
-            joinColumns = @JoinColumn(name = "employee_id"),
+    @JoinTable(name = "programmer_project",
+            joinColumns = @JoinColumn(name = "programmer_id"),
             inverseJoinColumns = @JoinColumn(name = "project_id"),
-            indexes = @Index(name = "emp_proj", columnList = "employee_id, project_id")
+            indexes = @Index(name = "programmer_project", columnList = "programmer_id, project_id")
     )
     private Set<Project> projects = new HashSet<>();
 
-    public enum Occupation {
-        PROGRAMMER, MANAGER
-    }
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 
     public enum Level {
         JUNIOR, MIDDLE, SENIOR
@@ -59,30 +57,28 @@ public class Employee {
         DEVELOPER, QA, DEVOPS
     }
 
-    private Employee(Builder builder) {
+    private Programmer(Builder builder) {
         this.id = builder.id;
         this.fullName = builder.fullName;
         this.email = builder.email;
-        this.occupation = builder.occupation;
         this.level = builder.level;
         this.type = builder.type;
     }
 
     public void addProject(Project project) {
         projects.add(project);
-        project.getEmployees().add(this);
+        project.getProgrammers().add(this);
     }
 
     public void removeProject(Project project) {
         projects.remove(project);
-        project.getEmployees().remove(this);
+        project.getProgrammers().remove(this);
     }
 
     public static final class Builder {
         private Integer id;
         private String fullName;
         private String email;
-        private Occupation occupation;
         private Level level;
         private Type type;
 
@@ -101,11 +97,6 @@ public class Employee {
             return this;
         }
 
-        public Builder addOccupation(Occupation occupation) {
-            this.occupation = occupation;
-            return this;
-        }
-
         public Builder addLevel(Level level) {
             this.level = level;
             return this;
@@ -116,8 +107,8 @@ public class Employee {
             return this;
         }
 
-        public Employee build() {
-            return new Employee(this);
+        public Programmer build() {
+            return new Programmer(this);
         }
     }
 }

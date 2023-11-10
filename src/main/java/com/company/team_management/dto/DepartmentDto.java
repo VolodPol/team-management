@@ -7,10 +7,9 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class ProjectDTO {
+public class DepartmentDto {
     private int id;
-    private String title;
-    private String goal;
-    private String budget;
+    private String name;
+    private String location;
     private List<String> programmers;
 }

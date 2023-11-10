@@ -10,9 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
-    @Query("select p from Project p left join fetch p.employees e")
+    @Query("select p from Project p left join fetch p.programmers")
     List<Project> findAllFetch();
 
-    @Query("select p from Project p left join fetch p.employees e where p.id = :id")
+    @Query("select p from Project p left join fetch p.programmers where p.id = :id")
     Optional<Project> findByIdFetch(Integer id);
 }

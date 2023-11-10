@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,19 +30,18 @@ public class Project {
     @NotNull
     private Long budget;
 
-    @NotNull
-    private Boolean finished;
-
     @ManyToMany(mappedBy = "projects")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    private Set<Employee> employees = new HashSet<>();
+    private Set<Programmer> programmers = new HashSet<>();
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private Set<Task> tasks = new HashSet<>();
 
     public Project(Builder builder) {
         this.id = builder.id;
         this.title = builder.title;
         this.goal = builder.goal;
         this.budget = builder.budget;
-        this.finished = builder.finished;
     }
 
     public static final class Builder {
@@ -49,7 +49,6 @@ public class Project {
         private String title;
         private String goal;
         private Long budget;
-        private Boolean finished;
 
         public Builder addId(Integer id) {
             this.id = id;
@@ -71,13 +70,13 @@ public class Project {
             return this;
         }
 
-        public Builder addFinished(Boolean finished) {
-            this.finished = finished;
-            return this;
-        }
-
         public Project build() {
             return new Project(this);
         }
+    }
+
+    public void addTask(Task task) {
+        tasks.add(task);
+        task.setProject(this);
     }
 }

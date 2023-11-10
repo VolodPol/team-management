@@ -1,4 +1,4 @@
-package com.company.team_management.exceptions.project;
+package com.company.team_management.exceptions.already_exists;
 
 import lombok.NoArgsConstructor;
 
