@@ -26,7 +26,7 @@ public class DepartmentService implements IService<Department> {
     @Override
     public Department save(Department department) {
         Integer id = department.getId();
-        if (id != null && repository.findById(id).orElse(null) != null) {
+        if (id != null && repository.findByIdFetch(id).orElse(null) != null) {
             throw new DepartmentAlreadyExistsException("Department already exists!");
         }
         return repository.save(department);

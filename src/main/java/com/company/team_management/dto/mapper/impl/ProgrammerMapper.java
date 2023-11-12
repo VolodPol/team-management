@@ -17,16 +17,19 @@ public class ProgrammerMapper extends Mapper<Programmer, ProgrammerDto> {
         int id = programmer.getId();
         String fullName = programmer.getFullName();
         String email = programmer.getEmail();
-        String level = programmer.getLevel().toString();
-        String type = programmer.getType().toString();
+        Programmer.Level level = programmer.getLevel();
+        Programmer.Type type = programmer.getType();
         Set<Project> projects = programmer.getProjects();
+        Department department = programmer.getDepartment();
+
+        String levelName = level == null ? null : level.toString();
+        String typeName = type == null ? null : type.toString();
         List<String> projectTitles = projects != null ?
                 projects.stream().map(Project::getTitle).toList()
                 : List.of();
-        Department department = programmer.getDepartment();
         String depName = department == null ? null : department.getName();
 
-        return new ProgrammerDto(id, fullName, email, level, type, projectTitles, depName);
+        return new ProgrammerDto(id, fullName, email, levelName, typeName, projectTitles, depName);
     }
 
     @Override

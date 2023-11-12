@@ -128,7 +128,7 @@ class ProjectControllerTest {
     public void handleNoSuchProjectException() throws Exception {
         int id = project.getId();
         when(service.findById(id))
-                .thenThrow(new NoSuchProjectException(String.format("There is no employee with id = %d", id)));
+                .thenThrow(new NoSuchProjectException(String.format("There is no project with id = %d", id)));
 
         mockMvc.perform(get("/company/project/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -137,7 +137,7 @@ class ProjectControllerTest {
                         content().json(TestUtils.objectToJsonString(
                                 new ErrorResponse(
                                         HttpStatus.CONFLICT,
-                                        String.format("There is no employee with id = %d", id)
+                                        String.format("There is no project with id = %d", id)
                                 )
                         ))
                 );

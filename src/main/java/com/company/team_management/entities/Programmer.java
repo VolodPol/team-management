@@ -7,7 +7,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -28,12 +27,12 @@ public class Programmer {
     @Column(unique = true)
     private String email;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Level level;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Type type;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
