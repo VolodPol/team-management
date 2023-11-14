@@ -6,6 +6,8 @@ import com.company.team_management.exceptions.no_such.NoSuchProgrammerException;
 import com.company.team_management.repositories.ProgrammerRepository;
 import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class ProgrammerService implements IService<Programmer> {
         this.programmerRepository = repo;
     }
 
+    @CacheEvict(cacheNames = "programmers", allEntries = true)
     @Transactional
     @Override
     public Programmer save(Programmer programmer) {
@@ -32,6 +35,7 @@ public class ProgrammerService implements IService<Programmer> {
         return programmerRepository.save(programmer);
     }
 
+    @Cacheable("programmers")
     @Transactional(readOnly = true)
     @Override
     public List<Programmer> findAll() {
@@ -44,6 +48,7 @@ public class ProgrammerService implements IService<Programmer> {
         return findIfPresent(id, programmerRepository::findByIdAndFetch);
     }
 
+    @CacheEvict(cacheNames = "programmers", allEntries = true)
     @Transactional
     @Override
     public void deleteById(int id) {
@@ -51,6 +56,7 @@ public class ProgrammerService implements IService<Programmer> {
         programmerRepository.deleteById(id);
     }
 
+    @CacheEvict(cacheNames = "programmers", allEntries = true)
     @Transactional
     @Override
     public Programmer updateById(int id, Programmer programmer) {

@@ -6,6 +6,8 @@ import com.company.team_management.exceptions.already_exists.ProjectAlreadyExist
 import com.company.team_management.repositories.ProjectRepository;
 import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class ProjectService implements IService<Project> {
         this.projectRepository = projectRepository;
     }
 
+    @CacheEvict(cacheNames = "projects", allEntries = true)
     @Transactional
     @Override
     public Project save(Project project) {
@@ -32,6 +35,7 @@ public class ProjectService implements IService<Project> {
         return projectRepository.save(project);
     }
 
+    @Cacheable("projects")
     @Transactional(readOnly = true)
     @Override
     public List<Project> findAll() {
@@ -44,6 +48,7 @@ public class ProjectService implements IService<Project> {
         return findIfPresent(id, projectRepository::findByIdFetch);
     }
 
+    @CacheEvict(cacheNames = "projects", allEntries = true)
     @Transactional
     @Override
     public void deleteById(int id) {
@@ -51,6 +56,7 @@ public class ProjectService implements IService<Project> {
         projectRepository.deleteById(id);
     }
 
+    @CacheEvict(cacheNames = "projects", allEntries = true)
     @Transactional
     @Override
     public Project updateById(int id, Project project) {

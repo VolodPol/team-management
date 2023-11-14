@@ -6,6 +6,8 @@ import com.company.team_management.exceptions.no_such.NoSuchTaskException;
 import com.company.team_management.repositories.TaskRepository;
 import com.company.team_management.services.IService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class TaskService implements IService<Task> {
     private final TaskRepository repository;
+    @CacheEvict(cacheNames = "tasks", allEntries = true)
     @Transactional
     @Override
     public Task save(Task task) {
@@ -27,6 +30,7 @@ public class TaskService implements IService<Task> {
         return repository.save(task);
     }
 
+    @Cacheable("tasks")
     @Transactional(readOnly = true)
     @Override
     public List<Task> findAll() {
@@ -39,6 +43,7 @@ public class TaskService implements IService<Task> {
         return findIfPresent(id, repository::findById);
     }
 
+    @CacheEvict(cacheNames = "tasks", allEntries = true)
     @Transactional
     @Override
     public void deleteById(int id) {
@@ -46,6 +51,7 @@ public class TaskService implements IService<Task> {
         repository.deleteById(id);
     }
 
+    @CacheEvict(cacheNames = "tasks", allEntries = true)
     @Transactional
     @Override
     public Task updateById(int id, Task task) {

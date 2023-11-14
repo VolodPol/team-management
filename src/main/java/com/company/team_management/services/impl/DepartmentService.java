@@ -6,6 +6,8 @@ import com.company.team_management.exceptions.no_such.NoSuchDepartmentException;
 import com.company.team_management.repositories.DepartmentRepository;
 import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class DepartmentService implements IService<Department> {
         this.repository = repository;
     }
 
+    @CacheEvict(cacheNames = "departments", allEntries = true)
     @Transactional
     @Override
     public Department save(Department department) {
@@ -32,6 +35,7 @@ public class DepartmentService implements IService<Department> {
         return repository.save(department);
     }
 
+    @Cacheable("departments")
     @Transactional(readOnly = true)
     @Override
     public List<Department> findAll() {
@@ -44,6 +48,7 @@ public class DepartmentService implements IService<Department> {
         return findIfPresent(id, repository::findByIdFetch);
     }
 
+    @CacheEvict(cacheNames = "departments", allEntries = true)
     @Transactional
     @Override
     public void deleteById(int id) {
@@ -51,6 +56,7 @@ public class DepartmentService implements IService<Department> {
         repository.deleteById(id);
     }
 
+    @CacheEvict(cacheNames = "departments", allEntries = true)
     @Transactional
     @Override
     public Department updateById(int id, Department department) {
