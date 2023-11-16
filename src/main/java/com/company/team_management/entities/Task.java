@@ -1,16 +1,15 @@
 package com.company.team_management.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Entity
 @Table(name = "task")
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = "project")
+@ToString(exclude = "project")
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

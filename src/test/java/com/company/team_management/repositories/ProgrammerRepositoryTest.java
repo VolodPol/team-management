@@ -1,19 +1,20 @@
 package com.company.team_management.repositories;
 
+import com.company.team_management.entities.Project;
+import com.company.team_management.entities.Task;
 import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.entities.Programmer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +42,7 @@ class ProgrammerRepositoryTest {
     @Test
     public void saveProductCase() {
         Programmer found = repository
-                .findById(extractIdOfSavedEmployee())
+                .findById(extractIdOfSavedProgrammer())
                 .orElse(null);
 
         assertEquals(programmer, found);
@@ -61,7 +62,7 @@ class ProgrammerRepositoryTest {
 
     @Test
     public void getByIdCase() {
-        int id = extractIdOfSavedEmployee();
+        int id = extractIdOfSavedProgrammer();
         Programmer actual = repository.findById(id)
                 .orElse(null);
 
@@ -70,7 +71,7 @@ class ProgrammerRepositoryTest {
 
     @Test
     public void updateExistingEmployeeCase() {
-        int id = extractIdOfSavedEmployee();
+        int id = extractIdOfSavedProgrammer();
         String newName = "jeremy";
         Programmer.Level newLevel = Programmer.Level.MIDDLE;
 
@@ -85,12 +86,43 @@ class ProgrammerRepositoryTest {
 
     @Test
     public void deleteEmployeeCase() {
-        repository.deleteById(extractIdOfSavedEmployee());
+        repository.deleteById(extractIdOfSavedProgrammer());
 
         assertEquals(0, repository.findAll().size());
     }
 
-    private int extractIdOfSavedEmployee() {
+    @Test
+    public void testFetchWithTasks() {
+        Project project = new Project.Builder()
+                .addTitle("test title")
+                .addGoal("test goal")
+                .addBudget(10000L)
+                .build();
+
+        Task task1 = new Task();
+        task1.setName("task name 1");
+        task1.setStatus(Task.Status.ACTIVE);
+        project.addTask(task1);
+
+        Task task2 = new Task();
+        task2.setName("task name 2");
+        task2.setStatus(Task.Status.FINISHED);
+        project.addTask(task2);
+
+        programmer.addProject(project);
+        repository.save(programmer);
+        List<Programmer> programmers = repository.findAllFetchTask();
+        Programmer fetchedProgrammer = programmers.get(0);
+        List<Project> fetchedProjects = fetchedProgrammer.getProjects().stream().toList();
+        Project fetchedProject = fetchedProjects.get(0);
+        Set<Task> fetchedTasks = fetchedProject.getTasks();
+
+        assertEquals(programmer, fetchedProgrammer);
+        assertIterableEquals(List.of(project), fetchedProjects);
+        assertTrue(fetchedTasks.stream().allMatch(task -> task.equals(task1) || task.equals(task2)));
+    }
+
+    private int extractIdOfSavedProgrammer() {
         repository.save(programmer);
         return programmer.getId();
     }

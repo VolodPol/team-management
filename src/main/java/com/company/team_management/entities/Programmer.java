@@ -12,12 +12,12 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "programmer")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(exclude = {"projects", "department"})
+@ToString(exclude = {"projects", "department"})
 @NoArgsConstructor
 public class Programmer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
     private Integer id;
 
     @NotNull

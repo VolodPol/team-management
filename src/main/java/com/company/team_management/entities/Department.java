@@ -11,8 +11,8 @@ import java.util.Set;
 @Table(name = "department")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
-@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(exclude = "programmers")
+@ToString(exclude = "programmers")
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

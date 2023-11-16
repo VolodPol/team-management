@@ -7,6 +7,7 @@ import com.company.team_management.entities.Programmer;
 import com.company.team_management.exceptions.already_exists.ProgrammerAlreadyExistsException;
 import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.no_such.NoSuchProgrammerException;
+import com.company.team_management.services.StatisticsService;
 import com.company.team_management.services.impl.ProgrammerService;
 import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,12 @@ import java.util.List;
 @RequestMapping("company")
 public class ProgrammerController {
     private final IService<Programmer> service;
+    private final StatisticsService statService;
     private final Mapper<Programmer, ProgrammerDto> mapper;
     @Autowired
-    public ProgrammerController(ProgrammerService service, ProgrammerMapper mapper) {
+    public ProgrammerController(ProgrammerService service, StatisticsService statService, ProgrammerMapper mapper) {
         this.service = service;
+        this.statService = statService;
         this.mapper = mapper;
     }
 
@@ -43,6 +46,12 @@ public class ProgrammerController {
     @GetMapping(value = "/programmers", produces = "application/json")
     public ResponseEntity<List<ProgrammerDto>> getAllProgrammers() {
         List<ProgrammerDto> dtoList = mapper.collectionToDto(service.findAll());
+        return new ResponseEntity<>(dtoList, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/programmers/best", produces = "application/json")
+    public ResponseEntity<List<ProgrammerDto>> getBest() {
+        List<ProgrammerDto> dtoList = mapper.collectionToDto(statService.findMostSuccessful());
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 

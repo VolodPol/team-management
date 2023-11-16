@@ -1,5 +1,6 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.services.StatisticsService;
 import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.utils.TestUtils;
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 
 import java.util.List;
@@ -37,7 +39,9 @@ class ProgrammerControllerTest {
     @Autowired
     private ProgrammerMapper mapper;
     @MockBean
-    private ProgrammerService service;
+    private ProgrammerService programmerService;
+    @MockBean
+    private StatisticsService statService;
     private Programmer programmer;
     private ProgrammerDto dto;
     private final TestEntityProvider<Programmer> entityProvider = new ProgrammerProvider();
@@ -52,20 +56,20 @@ class ProgrammerControllerTest {
 
     @Test
     public void postEmployee() throws Exception {
-        when(service.save(any())).thenReturn(programmer);
+        when(programmerService.save(any())).thenReturn(programmer);
         mockMvc.perform(post("/company/programmer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(programmer)))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(TestUtils.objectToJsonString(dto)));
 
-        verify(service, times(1)).save(programmer);
+        verify(programmerService, times(1)).save(programmer);
     }
 
     @Test
     public void getAllEmployees() throws Exception {
         List<Programmer> fetched = List.of(programmer);
-        when(service.findAll()).thenReturn(fetched);
+        when(programmerService.findAll()).thenReturn(fetched);
         List<ProgrammerDto> dtoList = mapper.collectionToDto(fetched);
 
         mockMvc.perform(get("/company/programmers"))
@@ -73,24 +77,24 @@ class ProgrammerControllerTest {
                         status().isOk(),
                         content().json(TestUtils.objectToJsonString(dtoList))
                 );
-        verify(service, times(1)).findAll();
+        verify(programmerService, times(1)).findAll();
     }
 
     @Test
     public void findExistingEmployeeByIdReturnsFound() throws Exception {
-        when(service.findById(programmer.getId())).thenReturn(programmer);
+        when(programmerService.findById(programmer.getId())).thenReturn(programmer);
 
         mockMvc.perform(get("/company/programmer/{id}", programmer.getId()))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(dto)),
                         status().isFound()
                 );
-        verify(service, times(1)).findById(programmer.getId());
+        verify(programmerService, times(1)).findById(programmer.getId());
     }
 
     @Test
     public void deleteEmployeeById() throws Exception {
-        doNothing().when(service).deleteById(programmer.getId());
+        doNothing().when(programmerService).deleteById(programmer.getId());
 
         mockMvc.perform(delete("/company/programmer/{id}", programmer.getId()))
                 .andExpectAll(
@@ -98,7 +102,7 @@ class ProgrammerControllerTest {
                         content().string("Successfully deleted!")
                 );
 
-        verify(service, times(1)).deleteById(programmer.getId());
+        verify(programmerService, times(1)).deleteById(programmer.getId());
     }
 
     @Test
@@ -109,20 +113,20 @@ class ProgrammerControllerTest {
         updated.setLevel(Programmer.Level.MIDDLE);
         ProgrammerDto updatedDTO = mapper.toDto(updated);
 
-        when(service.updateById(programmer.getId(), updated)).thenReturn(updated);
+        when(programmerService.updateById(programmer.getId(), updated)).thenReturn(updated);
 
         mockMvc.perform(put("/company/programmer/{id}", programmer.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.objectToJsonString(updated))
         ).andExpectAll(status().isOk(), content().json(TestUtils.objectToJsonString(updatedDTO)));
-        verify(service, times(1)).updateById(programmer.getId(), programmer);
+        verify(programmerService, times(1)).updateById(programmer.getId(), updated);
     }
 
 
     @Test
     public void handleNoSuchEmployeeException() throws Exception {
         String errorMessage = String.format("There is no programmer with id = %d", programmer.getId());
-        when(service.findById(programmer.getId()))
+        when(programmerService.findById(programmer.getId()))
                 .thenThrow(new NoSuchProgrammerException(errorMessage));
 
         mockMvc.perform(get("/company/programmer/{id}", programmer.getId()))
@@ -132,13 +136,13 @@ class ProgrammerControllerTest {
                                 new ErrorResponse(HttpStatus.CONFLICT, errorMessage)
                         ))
                 );
-        verify(service, times(1)).findById(programmer.getId());
+        verify(programmerService, times(1)).findById(programmer.getId());
     }
 
     @Test
     public void handleEmployeeAlreadyExistsException() throws Exception {
         String errorMessage = "Programmer already exists!";
-        when(service.save(programmer))
+        when(programmerService.save(programmer))
                 .thenThrow(new ProgrammerAlreadyExistsException(errorMessage));
 
         mockMvc.perform(post("/company/programmer")
@@ -150,6 +154,20 @@ class ProgrammerControllerTest {
                                 new ErrorResponse(HttpStatus.CONFLICT, errorMessage)
                         ))
                 );
-        verify(service, times(1)).save(programmer);
+        verify(programmerService, times(1)).save(programmer);
+    }
+
+    @Test
+    public void testGetBest() throws Exception {
+        List<Programmer> programmerList = List.of(programmer);
+        when(statService.findMostSuccessful()).thenReturn(programmerList);
+        List<ProgrammerDto> dtoList = mapper.collectionToDto(programmerList);
+
+        mockMvc.perform(get("/company/programmers/best"))
+                .andExpectAll(
+                        MockMvcResultMatchers.content().json(TestUtils.objectToJsonString(dtoList)),
+                        MockMvcResultMatchers.status().isOk()
+                );
+        verify(statService, times(1)).findMostSuccessful();
     }
 }
