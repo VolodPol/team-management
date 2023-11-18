@@ -4,6 +4,7 @@ import com.company.team_management.entities.Programmer;
 import com.company.team_management.entities.Project;
 import com.company.team_management.services.IService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ public class ManagementService {
         this.projectService = projectService;
     }
 
+    @CacheEvict(cacheNames = {"count", "bestProgrammers"})
     @Transactional
     public Programmer addNewProgrammerToProject(int projectId, Programmer programmer) {
         Project project = projectService.findById(projectId);

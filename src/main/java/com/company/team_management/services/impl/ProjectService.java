@@ -24,7 +24,7 @@ public class ProjectService implements IService<Project> {
         this.projectRepository = projectRepository;
     }
 
-    @CacheEvict(cacheNames = "projects", allEntries = true)
+    @CacheEvict(cacheNames = {"projects", "bestProgrammers"}, allEntries = true)
     @Transactional
     @Override
     public Project save(Project project) {
@@ -48,7 +48,7 @@ public class ProjectService implements IService<Project> {
         return findIfPresent(id, projectRepository::findByIdFetch);
     }
 
-    @CacheEvict(cacheNames = "projects", allEntries = true)
+    @CacheEvict(cacheNames = {"projects", "bestProgrammers"}, allEntries = true)
     @Transactional
     @Override
     public void deleteById(int id) {

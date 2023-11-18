@@ -24,7 +24,7 @@ public class DepartmentService implements IService<Department> {
         this.repository = repository;
     }
 
-    @CacheEvict(cacheNames = "departments", allEntries = true)
+    @CacheEvict(cacheNames = {"departments", "count"}, allEntries = true)
     @Transactional
     @Override
     public Department save(Department department) {
@@ -48,7 +48,7 @@ public class DepartmentService implements IService<Department> {
         return findIfPresent(id, repository::findByIdFetch);
     }
 
-    @CacheEvict(cacheNames = "departments", allEntries = true)
+    @CacheEvict(cacheNames = {"departments", "count"}, allEntries = true)
     @Transactional
     @Override
     public void deleteById(int id) {

@@ -5,8 +5,10 @@ import com.company.team_management.dto.mapper.impl.DepartmentMapper;
 import com.company.team_management.dto.mapper.Mapper;
 import com.company.team_management.entities.Department;
 import com.company.team_management.services.IService;
+import com.company.team_management.services.StatisticsService;
 import com.company.team_management.services.impl.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +21,13 @@ import java.util.List;
 @RequestMapping("company")
 public class DepartmentController {
     private final IService<Department> service;
+    private final StatisticsService statService;
     private final Mapper<Department, DepartmentDto> mapper;
 
     @Autowired
-    public DepartmentController(DepartmentService service, DepartmentMapper mapper) {
+    public DepartmentController(DepartmentService service, StatisticsService statService, DepartmentMapper mapper) {
         this.service = service;
+        this.statService = statService;
         this.mapper = mapper;
     }
 
@@ -67,5 +71,10 @@ public class DepartmentController {
         DepartmentDto dto = mapper.toDto(found);
 
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping(value = "/department/programmers", produces = "application/json")
+    public ResponseEntity<String> getCountStatistics() {
+        return ResponseEntity.ok(statService.countProgrammersPerDepartment());
     }
 }

@@ -24,7 +24,7 @@ public class ProgrammerService implements IService<Programmer> {
         this.programmerRepository = repo;
     }
 
-    @CacheEvict(cacheNames = "programmers", allEntries = true)
+    @CacheEvict(cacheNames = {"programmers", "bestProgrammers", "count"}, allEntries = true)
     @Transactional
     @Override
     public Programmer save(Programmer programmer) {
@@ -48,7 +48,7 @@ public class ProgrammerService implements IService<Programmer> {
         return findIfPresent(id, programmerRepository::findByIdAndFetch);
     }
 
-    @CacheEvict(cacheNames = "programmers", allEntries = true)
+    @CacheEvict(cacheNames = {"programmers", "bestProgrammers", "count"}, allEntries = true)
     @Transactional
     @Override
     public void deleteById(int id) {
