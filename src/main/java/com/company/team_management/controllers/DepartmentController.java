@@ -7,16 +7,19 @@ import com.company.team_management.entities.Department;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.services.impl.DepartmentService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("company")
 public class DepartmentController {
@@ -32,7 +35,7 @@ public class DepartmentController {
     }
 
     @PostMapping(value = "/department", consumes = "application/json")
-    public ResponseEntity<Department> saveDepartment(@RequestBody Department department) {
+    public ResponseEntity<Department> saveDepartment(@Valid @RequestBody Department department) {
         service.save(department);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -51,14 +54,14 @@ public class DepartmentController {
     }
 
     @DeleteMapping(value = "/department/{id}", produces = "application/json")
-    public ResponseEntity<String> removeById(@PathVariable int id) {
+    public ResponseEntity<String> removeById(@PathVariable @Min(0) int id) {
         service.deleteById(id);
         return new ResponseEntity<>("Successfully deleted!", HttpStatus.NO_CONTENT);
     }
 
     @PutMapping(value = "/department/{id}", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<DepartmentDto> updateDepartment(@PathVariable int id,
-                                                          @RequestBody Department department) {
+    public ResponseEntity<DepartmentDto> updateDepartment(@PathVariable @Min(0) int id,
+                                                          @Valid @RequestBody Department department) {
         Department updated = service.updateById(id, department);
         DepartmentDto updateDto = mapper.toDto(updated);
 
@@ -66,7 +69,7 @@ public class DepartmentController {
     }
 
     @GetMapping(value = "/department/{id}", produces = "application/json")
-    public ResponseEntity<DepartmentDto> findDepartmentById(@PathVariable int id) {
+    public ResponseEntity<DepartmentDto> findDepartmentById(@PathVariable @Min(0) int id) {
         Department found = service.findById(id);
         DepartmentDto dto = mapper.toDto(found);
 

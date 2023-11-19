@@ -1,6 +1,7 @@
 package com.company.team_management.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.util.HashSet;
@@ -18,9 +19,11 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotEmpty
     @Column(length = 64, nullable = false, unique = true)
     private String name;
 
+    @NotEmpty
     @Column(length = 128, nullable = false, unique = true)
     private String location;
 

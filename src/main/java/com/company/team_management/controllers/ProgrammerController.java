@@ -10,15 +10,19 @@ import com.company.team_management.exceptions.no_such.NoSuchProgrammerException;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.services.impl.ProgrammerService;
 import com.company.team_management.services.IService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("company")
 public class ProgrammerController {
@@ -33,7 +37,7 @@ public class ProgrammerController {
     }
 
     @PostMapping(value = "/programmer", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<ProgrammerDto> addProgrammer(@RequestBody Programmer programmer) {
+    public ResponseEntity<ProgrammerDto> addProgrammer(@Valid @RequestBody Programmer programmer) {
         Programmer newProgrammer = service.save(programmer);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -56,13 +60,13 @@ public class ProgrammerController {
     }
 
     @GetMapping(value = "/programmer/{id}", produces = "application/json")
-    public ResponseEntity<ProgrammerDto> findById(@PathVariable int id) {
+    public ResponseEntity<ProgrammerDto> findById(@PathVariable @Min(0) int id) {
         Programmer foundEmp = service.findById(id);
         return new ResponseEntity<>(mapper.toDto(foundEmp),  HttpStatus.FOUND);
     }
 
     @DeleteMapping(value = "/programmer/{id}", produces = "application/json")
-    public ResponseEntity<String> deleteById(@PathVariable int id) {
+    public ResponseEntity<String> deleteById(@PathVariable @Min(0) int id) {
         service.deleteById(id);
         return new ResponseEntity<>(
                 "Successfully deleted!", HttpStatus.NO_CONTENT
@@ -70,8 +74,8 @@ public class ProgrammerController {
     }
 
     @PutMapping(value = "/programmer/{id}", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<ProgrammerDto> updateById(@PathVariable int id,
-                                                    @RequestBody Programmer programmer) {
+    public ResponseEntity<ProgrammerDto> updateById(@PathVariable @Min(0) int id,
+                                                    @Valid @RequestBody Programmer programmer) {
         ProgrammerDto dto = mapper.toDto(service.updateById(id, programmer));
         return new ResponseEntity<>(
                 dto, HttpStatus.OK

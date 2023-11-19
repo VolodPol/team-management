@@ -1,6 +1,8 @@
 package com.company.team_management.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -20,17 +22,20 @@ public class Programmer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull
+    @NotNull @NotEmpty
     @Column(name = "full_name", length = 64)
     private String fullName;
 
+    @Email
     @Column(unique = true)
     private String email;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Level level;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Type type;

@@ -9,16 +9,21 @@ import com.company.team_management.exceptions.no_such.NoSuchProjectException;
 import com.company.team_management.exceptions.already_exists.ProjectAlreadyExistsException;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.impl.ProjectService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
 
+@Validated
 @RestController
+@RequestMapping("company")
 public class ProjectController {
     private final IService<Project> service;
     private final Mapper<Project, ProjectDTO> mapper;
@@ -29,20 +34,20 @@ public class ProjectController {
         this.mapper = mapper;
     }
 
-    @GetMapping(value = "company/projects", produces = "application/json")
+    @GetMapping(value = "/projects", produces = "application/json")
     public ResponseEntity<List<ProjectDTO>> getAll() {
         List<ProjectDTO> dtoList = mapper.collectionToDto(service.findAll());
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 
-    @GetMapping(value = "company/project/{id}", produces = "application/json")
-    public ResponseEntity<ProjectDTO> findById(@PathVariable int id) {
+    @GetMapping(value = "/project/{id}", produces = "application/json")
+    public ResponseEntity<ProjectDTO> findById(@PathVariable @Min(0) int id) {
         ProjectDTO dto = mapper.toDto(service.findById(id));
         return new ResponseEntity<>(dto, HttpStatus.FOUND);
     }
 
-    @PostMapping(value = "company/project", consumes = "application/json")
-    public ResponseEntity<ProjectDTO> addProject(@RequestBody Project project) {
+    @PostMapping(value = "/project", consumes = "application/json")
+    public ResponseEntity<ProjectDTO> addProject(@Valid @RequestBody Project project) {
         ProjectDTO dto = mapper.toDto(service.save(project));
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -53,14 +58,15 @@ public class ProjectController {
                 .body(dto);
     }
 
-    @DeleteMapping("company/project/{id}")
-    public ResponseEntity<String> deleteProject(@PathVariable int id) {
+    @DeleteMapping("/project/{id}")
+    public ResponseEntity<String> deleteProject(@PathVariable @Min(0) int id) {
         service.deleteById(id);
         return new ResponseEntity<>("Successfully deleted!", HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping(value = "company/project/{id}", consumes = "application/json")
-    public ResponseEntity<ProjectDTO> updateProject(@PathVariable int id, @RequestBody Project updated) {
+    @PutMapping(value = "/project/{id}", consumes = "application/json")
+    public ResponseEntity<ProjectDTO> updateProject(@PathVariable @Min(0) int id,
+                                                    @Valid @RequestBody Project updated) {
         ProjectDTO dto = mapper.toDto(service.updateById(id, updated));
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }

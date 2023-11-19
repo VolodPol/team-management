@@ -25,8 +25,7 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TaskController.class)
 @ComponentScan(basePackages = "com.company.team_management.dto.mapper")
@@ -55,8 +54,7 @@ public class TaskControllerTest {
         when(service.findAll()).thenReturn(tasks);
 
         mockMvc.perform(get("/company/tasks")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dtoList)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
                         content().json(TestUtils.objectToJsonString(dtoList))
@@ -69,8 +67,7 @@ public class TaskControllerTest {
         when(service.findById(task.getId())).thenReturn(task);
 
         mockMvc.perform(get("/company/task/{id}", task.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isFound(),
                         content().json(TestUtils.objectToJsonString(dto))
@@ -84,7 +81,7 @@ public class TaskControllerTest {
 
         mockMvc.perform(post("/company/task")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
+                        .content(TestUtils.objectToJsonString(task)))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(dto)),
                         status().isCreated()
@@ -116,7 +113,7 @@ public class TaskControllerTest {
 
         mockMvc.perform(put("/company/task/{id}", task.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(updatedDto)))
+                        .content(TestUtils.objectToJsonString(toUpdate)))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(updatedDto)),
                         status().isOk()
@@ -132,7 +129,7 @@ public class TaskControllerTest {
 
         mockMvc.perform(get("/company/task/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
+                        .content(TestUtils.objectToJsonString(task)))
                 .andExpect(
                         content().json(TestUtils.objectToJsonString(
                                 new ErrorResponse(
@@ -146,21 +143,15 @@ public class TaskControllerTest {
 
     @Test
     public void handleTaskAlreadyExistsException() throws Exception {
+        String errorMessage = "Task already exists!";
         when(service.save(task))
-                .thenThrow(new TaskAlreadyExistsException("Task already exists!"));
+                .thenThrow(new TaskAlreadyExistsException(errorMessage));
 
         mockMvc.perform(post("/company/task")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
+                        .content(TestUtils.objectToJsonString(task)))
                 .andExpect(
-                        content().json(
-                                TestUtils.objectToJsonString(
-                                        new ErrorResponse(
-                                                HttpStatus.CONFLICT,
-                                                "Task already exists!"
-                                        )
-                                )
-                        )
+                        content().json(TestUtils.objectToJsonString(new ErrorResponse(HttpStatus.CONFLICT, errorMessage)))
                 );
         verify(service, times(1)).save(task);
     }

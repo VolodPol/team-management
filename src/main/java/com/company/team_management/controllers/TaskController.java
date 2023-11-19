@@ -9,15 +9,19 @@ import com.company.team_management.exceptions.already_exists.TaskAlreadyExistsEx
 import com.company.team_management.exceptions.no_such.NoSuchTaskException;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.impl.TaskService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("company")
 public class TaskController {
@@ -37,13 +41,13 @@ public class TaskController {
     }
 
     @GetMapping(value = "/task/{id}", produces = "application/json")
-    public ResponseEntity<TaskDTO> findById(@PathVariable int id) {
+    public ResponseEntity<TaskDTO> findById(@PathVariable @Min(0) int id) {
         TaskDTO dto = mapper.toDto(service.findById(id));
         return new ResponseEntity<>(dto, HttpStatus.FOUND);
     }
 
     @PostMapping(value = "/task", consumes = "application/json")
-    public ResponseEntity<TaskDTO> addTask(@RequestBody Task task) {
+    public ResponseEntity<TaskDTO> addTask(@Valid @RequestBody Task task) {
         TaskDTO dto = mapper.toDto(service.save(task));
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -55,13 +59,13 @@ public class TaskController {
     }
 
     @DeleteMapping("/task/{id}")
-    public ResponseEntity<String> deleteTask(@PathVariable int id) {
+    public ResponseEntity<String> deleteTask(@PathVariable @Min(0) int id) {
         service.deleteById(id);
         return new ResponseEntity<>("Successfully deleted!", HttpStatus.NO_CONTENT);
     }
 
     @PutMapping(value = "/task/{id}", consumes = "application/json")
-    public ResponseEntity<TaskDTO> updateTask(@PathVariable int id, @RequestBody Task updated) {
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable @Min(0) int id, @Valid @RequestBody Task updated) {
         TaskDTO dto = mapper.toDto(service.updateById(id, updated));
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }

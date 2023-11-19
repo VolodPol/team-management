@@ -19,7 +19,7 @@ public class ManagementService {
         this.projectService = projectService;
     }
 
-    @CacheEvict(cacheNames = {"count", "bestProgrammers"})
+    @CacheEvict(cacheNames = {"programmers", "count", "bestProgrammers"})
     @Transactional
     public Programmer addNewProgrammerToProject(int projectId, Programmer programmer) {
         Project project = projectService.findById(projectId);
