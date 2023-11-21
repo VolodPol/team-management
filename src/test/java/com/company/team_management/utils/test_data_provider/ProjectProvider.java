@@ -21,13 +21,13 @@ public class ProjectProvider implements TestEntityProvider<Project> {
                 new Project.Builder()
                         .addTitle("Led Lamp IOT")
                         .addGoal("Led Lamp")
-                        .addBudget((long) 1000)
+                        .addBudget(1000L)
                         .build(),
 
                 new Project.Builder()
                         .addTitle("Fire Alarm")
                         .addGoal("Alarm construction")
-                        .addBudget((long) 5000)
+                        .addBudget(5000L)
                         .build()
         );
     }

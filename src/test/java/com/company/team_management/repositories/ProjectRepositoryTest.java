@@ -3,6 +3,7 @@ package com.company.team_management.repositories;
 import com.company.team_management.utils.test_data_provider.ProjectProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.entities.Project;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,11 @@ class ProjectRepositoryTest {
         repository.deleteAllInBatch();
         project = entityProvider.generateEntity();
         projects = entityProvider.generateEntityList();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        repository.deleteAllInBatch();
     }
 
     @Test

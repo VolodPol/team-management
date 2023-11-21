@@ -2,16 +2,15 @@ package com.company.team_management.controllers;
 
 import com.company.team_management.dto.ProjectDTO;
 import com.company.team_management.dto.mapper.Mapper;
-import com.company.team_management.dto.mapper.impl.ProjectMapper;
 import com.company.team_management.entities.Project;
 import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.no_such.NoSuchProjectException;
 import com.company.team_management.exceptions.already_exists.ProjectAlreadyExistsException;
+import com.company.team_management.exceptions.no_such.NoSuchProjectException;
 import com.company.team_management.services.IService;
-import com.company.team_management.services.impl.ProjectService;
+import com.company.team_management.services.StatisticsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,15 +23,11 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("company")
+@RequiredArgsConstructor
 public class ProjectController {
     private final IService<Project> service;
+    private final StatisticsService statisticsService;
     private final Mapper<Project, ProjectDTO> mapper;
-
-    @Autowired
-    public ProjectController(ProjectService service, ProjectMapper mapper) {
-        this.service = service;
-        this.mapper = mapper;
-    }
 
     @GetMapping(value = "/projects", produces = "application/json")
     public ResponseEntity<List<ProjectDTO>> getAll() {
@@ -69,6 +64,12 @@ public class ProjectController {
                                                     @Valid @RequestBody Project updated) {
         ProjectDTO dto = mapper.toDto(service.updateById(id, updated));
         return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/projects/budget", produces = "application/json")
+    public List<Project> getProjectsWithinBudget(@RequestParam(name = "lower") @Min(0) long lowerBound,
+                                                 @RequestParam(name = "upper") @Min(0) long upperBound) {
+        return statisticsService.getProjectsWithInfoWithinBudget(lowerBound, upperBound);
     }
 
     @ExceptionHandler(value = {NoSuchProjectException.class, ProjectAlreadyExistsException.class})

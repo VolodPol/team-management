@@ -1,5 +1,6 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.services.StatisticsService;
 import com.company.team_management.utils.test_data_provider.ProjectProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.utils.TestUtils;
@@ -35,6 +36,8 @@ class ProjectControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private ProjectService service;
+    @MockBean
+    private StatisticsService statService;
     @Autowired
     private ProjectMapper mapper;
     private Project project;
@@ -122,6 +125,23 @@ class ProjectControllerTest {
                         status().isOk()
                 );
         verify(service, times(1)).updateById(toUpdate.getId(), toUpdate);
+    }
+
+    @Test
+    public void testGetProjectWithinBudget() throws Exception {
+        List<Project> projects = entityProvider.generateEntityList();
+        long maxBudget = projects.stream()
+                .mapToLong(Project::getBudget)
+                .max()
+                .orElse(0L);
+
+        when(statService.getProjectsWithInfoWithinBudget(0L, maxBudget)).thenReturn(projects);
+        mockMvc.perform(get("/company/projects/budget")
+                        .param("lower", String.valueOf(0L))
+                        .param("upper", String.valueOf(maxBudget)))
+                .andExpect(content().json(TestUtils.objectToJsonString(projects)))
+                .andExpect(status().isOk());
+        verify(statService, times(1)).getProjectsWithInfoWithinBudget(0L, maxBudget);
     }
 
     @Test

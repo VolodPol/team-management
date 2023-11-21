@@ -5,11 +5,13 @@ import com.company.team_management.entities.Project;
 import com.company.team_management.entities.Task;
 import com.company.team_management.repositories.DepartmentRepository;
 import com.company.team_management.repositories.ProgrammerRepository;
+import com.company.team_management.repositories.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class StatisticsService {
     private final ProgrammerRepository programmerRepository;
     private final DepartmentRepository departmentRepository;
+    private final ProjectRepository projectRepository;
 
     @Cacheable(value = "bestProgrammers")
     public List<Programmer> findMostSuccessful() {
@@ -56,5 +59,11 @@ public class StatisticsService {
         output.append(tableBody);
 
         return output.toString();
+    }
+
+    public List<Project> getProjectsWithInfoWithinBudget(Long lower, Long upper) {
+        if (lower > upper | lower < 0)
+            return Collections.emptyList();
+        return projectRepository.getAllFetchAllWithinBudget(lower, upper);
     }
 }

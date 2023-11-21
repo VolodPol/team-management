@@ -2,6 +2,7 @@ package com.company.team_management.controllers;
 
 import com.company.team_management.dto.TaskDTO;
 import com.company.team_management.dto.mapper.impl.TaskMapper;
+import com.company.team_management.entities.Project;
 import com.company.team_management.entities.Task;
 import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.already_exists.TaskAlreadyExistsException;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,6 +46,7 @@ public class TaskControllerTest {
     public void setUp() {
         task = entityProvider.generateEntity();
         task.setId(TestUtils.generateId());
+        task.setProject(new Project());
         dto = mapper.toDto(task);
     }
 
@@ -84,7 +87,8 @@ public class TaskControllerTest {
                         .content(TestUtils.objectToJsonString(task)))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(dto)),
-                        status().isCreated()
+                        status().isCreated(),
+                        header().exists(HttpHeaders.LOCATION)
                 );
         verify(service, times(1)).save(task);
     }
@@ -106,6 +110,7 @@ public class TaskControllerTest {
     public void updateExistingTask() throws Exception {
         Task toUpdate = entityProvider.generateEntity();
         toUpdate.setId(task.getId());
+        toUpdate.setProject(new Project());
         TaskDTO updatedDto = mapper.toDto(toUpdate);
 
         when(service.updateById(toUpdate.getId(), toUpdate))
