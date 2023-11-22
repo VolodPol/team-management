@@ -4,11 +4,10 @@ import com.company.team_management.dto.TaskDTO;
 import com.company.team_management.dto.mapper.Mapper;
 import com.company.team_management.dto.mapper.impl.TaskMapper;
 import com.company.team_management.entities.Task;
-import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.already_exists.TaskAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchTaskException;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.impl.TaskService;
+import com.company.team_management.validation.CreateGroup;
+import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +45,7 @@ public class TaskController {
         return new ResponseEntity<>(dto, HttpStatus.FOUND);
     }
 
+    @Validated(value = CreateGroup.class)
     @PostMapping(value = "/task", consumes = "application/json")
     public ResponseEntity<TaskDTO> addTask(@Valid @RequestBody Task task) {
         TaskDTO dto = mapper.toDto(service.save(task));
@@ -64,14 +64,10 @@ public class TaskController {
         return new ResponseEntity<>("Successfully deleted!", HttpStatus.NO_CONTENT);
     }
 
+    @Validated(value = UpdateGroup.class)
     @PutMapping(value = "/task/{id}", consumes = "application/json")
     public ResponseEntity<TaskDTO> updateTask(@PathVariable @Min(0) int id, @Valid @RequestBody Task updated) {
         TaskDTO dto = mapper.toDto(service.updateById(id, updated));
         return new ResponseEntity<>(dto, HttpStatus.OK);
-    }
-
-    @ExceptionHandler(value = {NoSuchTaskException.class, TaskAlreadyExistsException.class})
-    public ErrorResponse handle(RuntimeException exception) {
-        return new ErrorResponse(HttpStatus.CONFLICT, exception.getMessage());
     }
 }

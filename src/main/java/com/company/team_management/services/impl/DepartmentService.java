@@ -1,10 +1,9 @@
 package com.company.team_management.services.impl;
 
 import com.company.team_management.entities.Department;
-import com.company.team_management.exceptions.already_exists.DepartmentAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchDepartmentException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
 import com.company.team_management.repositories.DepartmentRepository;
-import com.company.team_management.services.IService;
+import com.company.team_management.services.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,11 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 @Service
-public class DepartmentService implements IService<Department> {
+public class DepartmentService extends AbstractService<Department> {
     private final DepartmentRepository repository;
 
     @Autowired
@@ -30,7 +27,7 @@ public class DepartmentService implements IService<Department> {
     public Department save(Department department) {
         Integer id = department.getId();
         if (id != null && repository.findByIdFetch(id).orElse(null) != null) {
-            throw new DepartmentAlreadyExistsException("Department already exists!");
+            throw new EntityExistsException("Department already exists!");
         }
         return repository.save(department);
     }
@@ -66,12 +63,5 @@ public class DepartmentService implements IService<Department> {
         setNullable(found::setLocation, department.getLocation());
 
         return found;
-    }
-
-    private Department findIfPresent(int id, Function<Integer, Optional<Department>> finder) {
-        return finder.apply(id)
-                .orElseThrow(
-                        () -> new NoSuchDepartmentException(String.format("There is no department with id = %d", id))
-                );
     }
 }

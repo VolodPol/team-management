@@ -14,7 +14,7 @@ import java.util.Set;
 public class ProgrammerMapper extends Mapper<Programmer, ProgrammerDto> {
     @Override
     public ProgrammerDto toDto(Programmer programmer) {
-        int id = programmer.getId();
+        Integer id = programmer.getId();
         String fullName = programmer.getFullName();
         String email = programmer.getEmail();
         Programmer.Level level = programmer.getLevel();

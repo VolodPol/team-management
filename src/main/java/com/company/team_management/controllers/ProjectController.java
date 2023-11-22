@@ -3,11 +3,10 @@ package com.company.team_management.controllers;
 import com.company.team_management.dto.ProjectDTO;
 import com.company.team_management.dto.mapper.Mapper;
 import com.company.team_management.entities.Project;
-import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.already_exists.ProjectAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchProjectException;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.StatisticsService;
+import com.company.team_management.validation.CreateGroup;
+import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +40,7 @@ public class ProjectController {
         return new ResponseEntity<>(dto, HttpStatus.FOUND);
     }
 
+    @Validated(value = CreateGroup.class)
     @PostMapping(value = "/project", consumes = "application/json")
     public ResponseEntity<ProjectDTO> addProject(@Valid @RequestBody Project project) {
         ProjectDTO dto = mapper.toDto(service.save(project));
@@ -59,6 +59,7 @@ public class ProjectController {
         return new ResponseEntity<>("Successfully deleted!", HttpStatus.NO_CONTENT);
     }
 
+    @Validated(value = UpdateGroup.class)
     @PutMapping(value = "/project/{id}", consumes = "application/json")
     public ResponseEntity<ProjectDTO> updateProject(@PathVariable @Min(0) int id,
                                                     @Valid @RequestBody Project updated) {
@@ -70,10 +71,5 @@ public class ProjectController {
     public List<Project> getProjectsWithinBudget(@RequestParam(name = "lower") @Min(0) long lowerBound,
                                                  @RequestParam(name = "upper") @Min(0) long upperBound) {
         return statisticsService.getProjectsWithInfoWithinBudget(lowerBound, upperBound);
-    }
-
-    @ExceptionHandler(value = {NoSuchProjectException.class, ProjectAlreadyExistsException.class})
-    public ErrorResponse handle(RuntimeException exception) {
-        return new ErrorResponse(HttpStatus.CONFLICT, exception.getMessage());
     }
 }

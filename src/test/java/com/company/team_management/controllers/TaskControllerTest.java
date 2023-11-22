@@ -4,9 +4,6 @@ import com.company.team_management.dto.TaskDTO;
 import com.company.team_management.dto.mapper.impl.TaskMapper;
 import com.company.team_management.entities.Project;
 import com.company.team_management.entities.Task;
-import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.already_exists.TaskAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchTaskException;
 import com.company.team_management.services.impl.TaskService;
 import com.company.team_management.utils.TestUtils;
 import com.company.team_management.utils.test_data_provider.TaskProvider;
@@ -18,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -124,40 +120,5 @@ public class TaskControllerTest {
                         status().isOk()
                 );
         verify(service, times(1)).updateById(toUpdate.getId(), toUpdate);
-    }
-
-    @Test
-    public void handleNoSuchTaskException() throws Exception {
-        int id = task.getId();
-        when(service.findById(id))
-                .thenThrow(new NoSuchTaskException(String.format("There is no task with id = %d", id)));
-
-        mockMvc.perform(get("/company/task/{id}", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(task)))
-                .andExpect(
-                        content().json(TestUtils.objectToJsonString(
-                                new ErrorResponse(
-                                        HttpStatus.CONFLICT,
-                                        String.format("There is no task with id = %d", id)
-                                )
-                        ))
-                );
-        verify(service, times(1)).findById(id);
-    }
-
-    @Test
-    public void handleTaskAlreadyExistsException() throws Exception {
-        String errorMessage = "Task already exists!";
-        when(service.save(task))
-                .thenThrow(new TaskAlreadyExistsException(errorMessage));
-
-        mockMvc.perform(post("/company/task")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(task)))
-                .andExpect(
-                        content().json(TestUtils.objectToJsonString(new ErrorResponse(HttpStatus.CONFLICT, errorMessage)))
-                );
-        verify(service, times(1)).save(task);
     }
 }

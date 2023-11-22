@@ -1,12 +1,12 @@
-package com.company.team_management.exceptions.no_such;
+package com.company.team_management.exceptions.already_exists;
 
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class NoSuchTaskException extends RuntimeException {
+public class EntityExistsException extends RuntimeException {
     private String message;
 
-    public NoSuchTaskException(String message) {
+    public EntityExistsException(String message) {
         super(message);
         this.message = message;
     }

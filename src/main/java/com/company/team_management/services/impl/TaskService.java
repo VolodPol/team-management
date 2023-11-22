@@ -1,10 +1,9 @@
 package com.company.team_management.services.impl;
 
 import com.company.team_management.entities.Task;
-import com.company.team_management.exceptions.already_exists.TaskAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchTaskException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
 import com.company.team_management.repositories.TaskRepository;
-import com.company.team_management.services.IService;
+import com.company.team_management.services.AbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,12 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
-public class TaskService implements IService<Task> {
+public class TaskService extends AbstractService<Task> {
     private final TaskRepository repository;
     @CacheEvict(cacheNames = {"tasks", "bestProgrammers"}, allEntries = true)
     @Transactional
@@ -25,7 +22,7 @@ public class TaskService implements IService<Task> {
     public Task save(Task task) {
         Integer id = task.getId();
         if (id != null && repository.findById(id).orElse(null) != null) {
-            throw new TaskAlreadyExistsException("Task already exists!");
+            throw new EntityExistsException("Task already exists!");
         }
         return repository.save(task);
     }
@@ -60,14 +57,5 @@ public class TaskService implements IService<Task> {
         setNullable(found::setName, task.getName());
         setNullable(found::setStatus, task.getStatus());
         return found;
-    }
-
-    private Task findIfPresent(int id, Function<Integer, Optional<Task>> finder) {
-        Optional<Task> task = finder.apply(id);
-        if (task.isEmpty())
-            throw new NoSuchTaskException(
-                    String.format("There is no employee with id = %d", id)
-            );
-        return task.get();
     }
 }

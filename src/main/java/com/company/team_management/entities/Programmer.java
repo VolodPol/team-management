@@ -1,8 +1,8 @@
 package com.company.team_management.entities;
 
+import com.company.team_management.validation.CreateGroup;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -22,7 +22,7 @@ public class Programmer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull @NotEmpty
+    @NotNull(groups = CreateGroup.class)
     @Column(name = "full_name", length = 64)
     private String fullName;
 
@@ -30,12 +30,12 @@ public class Programmer {
     @Column(unique = true)
     private String email;
 
-    @NotNull
+    @NotNull(groups = CreateGroup.class)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Level level;
 
-    @NotNull
+    @NotNull(groups = CreateGroup.class)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Type type;

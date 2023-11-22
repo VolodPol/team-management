@@ -1,7 +1,9 @@
 package com.company.team_management.entities;
 
+import com.company.team_management.validation.CreateGroup;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.HashSet;
@@ -16,14 +18,15 @@ import java.util.Set;
 @ToString(exclude = "programmers")
 public class Department {
     @Id
+    @NotNull(groups = CreateGroup.class)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotEmpty
+    @NotEmpty(groups = CreateGroup.class)
     @Column(length = 64, nullable = false, unique = true)
     private String name;
 
-    @NotEmpty
+    @NotEmpty(groups = CreateGroup.class)
     @Column(length = 128, nullable = false, unique = true)
     private String location;
 

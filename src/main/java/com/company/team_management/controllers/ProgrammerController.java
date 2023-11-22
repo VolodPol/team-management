@@ -4,12 +4,11 @@ import com.company.team_management.dto.ProgrammerDto;
 import com.company.team_management.dto.mapper.Mapper;
 import com.company.team_management.dto.mapper.impl.ProgrammerMapper;
 import com.company.team_management.entities.Programmer;
-import com.company.team_management.exceptions.already_exists.ProgrammerAlreadyExistsException;
-import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.no_such.NoSuchProgrammerException;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.services.impl.ProgrammerService;
 import com.company.team_management.services.IService;
+import com.company.team_management.validation.CreateGroup;
+import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +35,7 @@ public class ProgrammerController {
         this.mapper = mapper;
     }
 
+    @Validated(value = CreateGroup.class)
     @PostMapping(value = "/programmer", consumes = "application/json", produces = "application/json")
     public ResponseEntity<ProgrammerDto> addProgrammer(@Valid @RequestBody Programmer programmer) {
         Programmer newProgrammer = service.save(programmer);
@@ -73,6 +73,7 @@ public class ProgrammerController {
         );
     }
 
+    @Validated(value = UpdateGroup.class)
     @PutMapping(value = "/programmer/{id}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<ProgrammerDto> updateById(@PathVariable @Min(0) int id,
                                                     @Valid @RequestBody Programmer programmer) {
@@ -80,10 +81,5 @@ public class ProgrammerController {
         return new ResponseEntity<>(
                 dto, HttpStatus.OK
         );
-    }
-
-    @ExceptionHandler(value = {ProgrammerAlreadyExistsException.class, NoSuchProgrammerException.class})
-    public ErrorResponse handle(RuntimeException exception) {
-        return new ErrorResponse(HttpStatus.CONFLICT, exception.getMessage());
     }
 }

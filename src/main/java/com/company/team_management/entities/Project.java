@@ -1,5 +1,6 @@
 package com.company.team_management.entities;
 
+import com.company.team_management.validation.CreateGroup;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -22,13 +23,13 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull @NotEmpty
+    @NotNull(groups = CreateGroup.class) @NotEmpty(groups = CreateGroup.class)
     private String title;
 
-    @NotNull @NotEmpty
+    @NotNull(groups = CreateGroup.class) @NotEmpty(groups = CreateGroup.class)
     private String goal;
 
-    @NotNull
+    @NotNull(groups = CreateGroup.class)
     @Min(0)
     private Long budget;
 

@@ -7,6 +7,8 @@ import com.company.team_management.entities.Department;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.services.impl.DepartmentService;
+import com.company.team_management.validation.CreateGroup;
+import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ public class DepartmentController {
         this.mapper = mapper;
     }
 
+    @Validated(value = CreateGroup.class)
     @PostMapping(value = "/department", consumes = "application/json")
     public ResponseEntity<Department> saveDepartment(@Valid @RequestBody Department department) {
         service.save(department);
@@ -59,6 +62,7 @@ public class DepartmentController {
         return new ResponseEntity<>("Successfully deleted!", HttpStatus.NO_CONTENT);
     }
 
+    @Validated(value = UpdateGroup.class)
     @PutMapping(value = "/department/{id}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<DepartmentDto> updateDepartment(@PathVariable @Min(0) int id,
                                                           @Valid @RequestBody Department department) {

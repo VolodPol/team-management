@@ -2,12 +2,8 @@ package com.company.team_management.exceptions.advice;
 
 
 import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.already_exists.ProgrammerAlreadyExistsException;
-import com.company.team_management.exceptions.already_exists.ProjectAlreadyExistsException;
-import com.company.team_management.exceptions.already_exists.TaskAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchProgrammerException;
-import com.company.team_management.exceptions.no_such.NoSuchProjectException;
-import com.company.team_management.exceptions.no_such.NoSuchTaskException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
+import com.company.team_management.exceptions.no_such.NoSuchEntityException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -31,11 +27,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body.toString());
     }
 
-    @ExceptionHandler(value = {
-            ProgrammerAlreadyExistsException.class, NoSuchProgrammerException.class,
-            NoSuchProjectException.class, ProjectAlreadyExistsException.class,
-            NoSuchTaskException.class, TaskAlreadyExistsException.class
-    })
+    @ExceptionHandler(value = {NoSuchEntityException.class, EntityExistsException.class})
     public ErrorResponse handleCommonExceptions(RuntimeException exception) {
         return new ErrorResponse(HttpStatus.CONFLICT, exception.getMessage());
     }

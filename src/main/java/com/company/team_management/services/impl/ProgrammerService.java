@@ -1,10 +1,9 @@
 package com.company.team_management.services.impl;
 
 import com.company.team_management.entities.Programmer;
-import com.company.team_management.exceptions.already_exists.ProgrammerAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchProgrammerException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
 import com.company.team_management.repositories.ProgrammerRepository;
-import com.company.team_management.services.IService;
+import com.company.team_management.services.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,11 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 @Service
-public class ProgrammerService implements IService<Programmer> {
+public class ProgrammerService extends AbstractService<Programmer> {
     private final ProgrammerRepository programmerRepository;
 
     @Autowired
@@ -30,7 +27,7 @@ public class ProgrammerService implements IService<Programmer> {
     public Programmer save(Programmer programmer) {
         Integer id = programmer.getId();
         if (id != null && programmerRepository.findById(id).orElse(null) != null) {
-            throw new ProgrammerAlreadyExistsException("Employee already exists!");
+            throw new EntityExistsException("Employee already exists!");
         }
         return programmerRepository.save(programmer);
     }
@@ -68,14 +65,5 @@ public class ProgrammerService implements IService<Programmer> {
         setNullable(found::setType, programmer.getType());
 
         return found;
-    }
-
-    private Programmer findIfPresent(int id, Function<Integer, Optional<Programmer>> finder) {
-        Optional<Programmer> employee = finder.apply(id);
-        if (employee.isEmpty())
-            throw new NoSuchProgrammerException(
-                    String.format("There is no employee with id = %d", id)
-            );
-        return employee.get();
     }
 }

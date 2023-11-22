@@ -12,7 +12,7 @@ import java.util.List;
 public class ProjectMapper extends Mapper<Project, ProjectDTO> {
     @Override
     public ProjectDTO toDto(Project project) {
-        int id = project.getId();
+        Integer id = project.getId();
         String title = project.getTitle();
         String goal = project.getGoal();
         String budget = String.valueOf(project.getBudget());

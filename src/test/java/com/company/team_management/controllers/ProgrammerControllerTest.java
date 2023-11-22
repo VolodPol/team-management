@@ -7,9 +7,6 @@ import com.company.team_management.utils.TestUtils;
 import com.company.team_management.dto.ProgrammerDto;
 import com.company.team_management.dto.mapper.impl.ProgrammerMapper;
 import com.company.team_management.entities.Programmer;
-import com.company.team_management.exceptions.already_exists.ProgrammerAlreadyExistsException;
-import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.no_such.NoSuchProgrammerException;
 import com.company.team_management.services.impl.ProgrammerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -29,10 +25,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 
 @WebMvcTest(ProgrammerController.class)
-@ComponentScan(basePackages = "com.company.team_management.dto.mapper")
+@ComponentScan(basePackages = {"com.company.team_management.dto.mapper"})
 class ProgrammerControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -120,41 +115,6 @@ class ProgrammerControllerTest {
                 .content(TestUtils.objectToJsonString(updated))
         ).andExpectAll(status().isOk(), content().json(TestUtils.objectToJsonString(updatedDTO)));
         verify(programmerService, times(1)).updateById(programmer.getId(), updated);
-    }
-
-
-    @Test
-    public void handleNoSuchEmployeeException() throws Exception {
-        String errorMessage = String.format("There is no programmer with id = %d", programmer.getId());
-        when(programmerService.findById(programmer.getId()))
-                .thenThrow(new NoSuchProgrammerException(errorMessage));
-
-        mockMvc.perform(get("/company/programmer/{id}", programmer.getId()))
-                .andDo(print())
-                .andExpect(
-                        content().json(TestUtils.objectToJsonString(
-                                new ErrorResponse(HttpStatus.CONFLICT, errorMessage)
-                        ))
-                );
-        verify(programmerService, times(1)).findById(programmer.getId());
-    }
-
-    @Test
-    public void handleEmployeeAlreadyExistsException() throws Exception {
-        String errorMessage = "Programmer already exists!";
-        when(programmerService.save(programmer))
-                .thenThrow(new ProgrammerAlreadyExistsException(errorMessage));
-
-        mockMvc.perform(post("/company/programmer")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(programmer)))
-                .andDo(print())
-                .andExpect(
-                        content().json(TestUtils.objectToJsonString(
-                                new ErrorResponse(HttpStatus.CONFLICT, errorMessage)
-                        ))
-                );
-        verify(programmerService, times(1)).save(programmer);
     }
 
     @Test

@@ -4,8 +4,8 @@ import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
 import com.company.team_management.utils.TestUtils;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.entities.Programmer;
-import com.company.team_management.exceptions.already_exists.ProgrammerAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchProgrammerException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
+import com.company.team_management.exceptions.no_such.NoSuchEntityException;
 import com.company.team_management.repositories.ProgrammerRepository;
 import com.company.team_management.services.impl.ProgrammerService;
 import org.junit.jupiter.api.AfterEach;
@@ -62,7 +62,7 @@ class ProgrammerServiceTest {
         when(repository.findByIdAndFetch(id)).thenReturn(Optional.ofNullable(programmer2));
 
         assertEquals(programmer2, service.findById(id));
-        assertThrows(NoSuchProgrammerException.class,
+        assertThrows(NoSuchEntityException.class,
                 () -> service.findById(id + 1));
         verify(repository, times(2)).findByIdAndFetch(any());
     }
@@ -81,7 +81,7 @@ class ProgrammerServiceTest {
         programmer1.setId(TestUtils.generateId());
         when(repository.findById(programmer1.getId())).thenReturn(Optional.ofNullable(programmer1));
 
-        assertThrows(ProgrammerAlreadyExistsException.class, () -> service.save(programmer1));
+        assertThrows(EntityExistsException.class, () -> service.save(programmer1));
         verify(repository, times(0)).save(programmer1);
         verify(repository, times(1)).findById(programmer1.getId());
     }
@@ -113,7 +113,7 @@ class ProgrammerServiceTest {
         when(repository.findById(id))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NoSuchProgrammerException.class, () -> service.deleteById(id));
+        assertThrows(NoSuchEntityException.class, () -> service.deleteById(id));
         verify(repository, times(0)).deleteById(any());
     }
 
@@ -123,7 +123,7 @@ class ProgrammerServiceTest {
         when(repository.findByIdAndFetch(programmer1.getId()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NoSuchProgrammerException.class, () -> service.updateById(programmer1.getId(), programmer1));
+        assertThrows(NoSuchEntityException.class, () -> service.updateById(programmer1.getId(), programmer1));
         verify(repository, times(0)).save(any(Programmer.class));
     }
 
@@ -136,10 +136,8 @@ class ProgrammerServiceTest {
         Programmer modified = copyOf(programmer1);
         modified.setEmail("updated@gmail.com");
         modified.setLevel(Programmer.Level.MIDDLE);
-//        when(repository.save(modified)).thenReturn(modified);
 
         assertEquals(modified, service.updateById(id, modified));
-//        verify(repository, times(1)).save(any(Employee.class));
     }
 
     private Programmer copyOf(Programmer programmer) {

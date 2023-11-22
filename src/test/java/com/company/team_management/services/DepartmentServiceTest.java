@@ -1,8 +1,8 @@
 package com.company.team_management.services;
 
 import com.company.team_management.entities.Department;
-import com.company.team_management.exceptions.already_exists.DepartmentAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchDepartmentException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
+import com.company.team_management.exceptions.no_such.NoSuchEntityException;
 import com.company.team_management.repositories.DepartmentRepository;
 import com.company.team_management.services.impl.DepartmentService;
 import com.company.team_management.utils.TestUtils;
@@ -57,7 +57,7 @@ public class DepartmentServiceTest {
 
         assertAll(
                 () -> assertEquals(department, service.findById(departmentId)),
-                () -> assertThrows(NoSuchDepartmentException.class, () -> service.findById(departmentId + 1))
+                () -> assertThrows(NoSuchEntityException.class, () -> service.findById(departmentId + 1))
         );
         verify(repository, times(1)).findByIdFetch(departmentId);
     }
@@ -68,7 +68,7 @@ public class DepartmentServiceTest {
         department.setId(TestUtils.generateId());
         when(repository.findByIdFetch(department.getId())).thenReturn(Optional.of(department));
 
-        assertThrowsExactly(DepartmentAlreadyExistsException.class, () -> service.save(department),
+        assertThrowsExactly(EntityExistsException.class, () -> service.save(department),
                 "Department already exists!");
         verify(repository, times(1)).findByIdFetch(department.getId());
     }
@@ -110,7 +110,7 @@ public class DepartmentServiceTest {
         when(repository.findByIdFetch(id))
                 .thenReturn(Optional.empty());
 
-        assertThrowsExactly(NoSuchDepartmentException.class, () -> service.deleteById(id),
+        assertThrowsExactly(NoSuchEntityException.class, () -> service.deleteById(id),
                 String.format("There is no department with id = %d", id));
         verify(repository, times(1)).findByIdFetch(id);
     }
@@ -135,7 +135,7 @@ public class DepartmentServiceTest {
         when(repository.findByIdFetch(department.getId()))
                 .thenReturn(Optional.empty());
 
-        assertThrowsExactly(NoSuchDepartmentException.class, () -> service.updateById(department.getId(), department),
+        assertThrowsExactly(NoSuchEntityException.class, () -> service.updateById(department.getId(), department),
                 String.format("There is no department with id = %d", department.getId()));
         verify(repository, times(0)).save(department);
     }

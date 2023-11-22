@@ -1,8 +1,8 @@
 package com.company.team_management.services;
 
 import com.company.team_management.entities.Task;
-import com.company.team_management.exceptions.already_exists.TaskAlreadyExistsException;
-import com.company.team_management.exceptions.no_such.NoSuchTaskException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
+import com.company.team_management.exceptions.no_such.NoSuchEntityException;
 import com.company.team_management.repositories.TaskRepository;
 import com.company.team_management.services.impl.TaskService;
 import com.company.team_management.utils.TestUtils;
@@ -56,7 +56,7 @@ public class TaskServiceTest {
 
         assertAll(
                 () -> assertEquals(task, service.findById(taskId)),
-                () -> assertThrows(NoSuchTaskException.class, () -> service.findById(taskId + 1))
+                () -> assertThrows(NoSuchEntityException.class, () -> service.findById(taskId + 1))
         );
         verify(repository, times(1)).findById(taskId);
     }
@@ -67,7 +67,7 @@ public class TaskServiceTest {
         task.setId(TestUtils.generateId());
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
 
-        assertThrowsExactly(TaskAlreadyExistsException.class, () -> service.save(task),
+        assertThrowsExactly(EntityExistsException.class, () -> service.save(task),
                 "Task already exists!");
         verify(repository, times(1)).findById(any());
     }
@@ -107,9 +107,9 @@ public class TaskServiceTest {
         int id = TestUtils.generateId();
         task.setId(id);
         when(repository.findById(id))
-                .thenThrow(new NoSuchTaskException(String.format("There is no task with id = %d", id)));
+                .thenThrow(new NoSuchEntityException(String.format("There is no task with id = %d", id)));
 
-        assertThrowsExactly(NoSuchTaskException.class, () -> service.deleteById(id),
+        assertThrowsExactly(NoSuchEntityException.class, () -> service.deleteById(id),
                 String.format("There is no task with id = %d", id));
         verify(repository, times(1)).findById(id);
     }
@@ -132,9 +132,9 @@ public class TaskServiceTest {
     public void updateNonExistingTask() {
         task.setId(TestUtils.generateId());
         when(repository.findById(task.getId()))
-                .thenThrow(new TaskAlreadyExistsException("Task already exists!"));
+                .thenThrow(new EntityExistsException("Task already exists!"));
 
-        assertThrowsExactly(TaskAlreadyExistsException.class, () -> service.updateById(task.getId(), task),
+        assertThrowsExactly(EntityExistsException.class, () -> service.updateById(task.getId(), task),
                 "Task already exists!");
         verify(repository, times(0)).save(task);
     }

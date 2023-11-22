@@ -1,5 +1,6 @@
 package com.company.team_management.entities;
 
+import com.company.team_management.validation.CreateGroup;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,16 +18,16 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull @NotBlank
+    @NotNull(groups = CreateGroup.class) @NotBlank(groups = CreateGroup.class)
     @Column(nullable = false, length = 64)
     private String name;
 
-    @NotNull
+    @NotNull(groups = CreateGroup.class)
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private Status status;
 
-    @NotNull
+    @NotNull(groups = CreateGroup.class)
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;

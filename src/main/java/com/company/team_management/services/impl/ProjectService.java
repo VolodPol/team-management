@@ -1,10 +1,9 @@
 package com.company.team_management.services.impl;
 
 import com.company.team_management.entities.Project;
-import com.company.team_management.exceptions.no_such.NoSuchProjectException;
-import com.company.team_management.exceptions.already_exists.ProjectAlreadyExistsException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
 import com.company.team_management.repositories.ProjectRepository;
-import com.company.team_management.services.IService;
+import com.company.team_management.services.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,11 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 @Service
-public class ProjectService implements IService<Project> {
+public class ProjectService extends AbstractService<Project> {
     private final ProjectRepository projectRepository;
 
     @Autowired
@@ -30,7 +27,7 @@ public class ProjectService implements IService<Project> {
     public Project save(Project project) {
         Integer id = project.getId();
         if (id != null && projectRepository.findById(id).orElse(null) != null) {
-            throw new ProjectAlreadyExistsException("Project already exists!");
+            throw new EntityExistsException("Project already exists!");
         }
         return projectRepository.save(project);
     }
@@ -67,12 +64,5 @@ public class ProjectService implements IService<Project> {
         setNullable(found::setBudget, project.getBudget());
 
         return found;
-    }
-
-    private Project findIfPresent(int id, Function<Integer, Optional<Project>> finder) {
-        return finder.apply(id)
-                .orElseThrow(
-                        () -> new NoSuchProjectException(String.format("There is no project with id = %d", id))
-                );
     }
 }

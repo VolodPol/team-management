@@ -7,9 +7,6 @@ import com.company.team_management.utils.TestUtils;
 import com.company.team_management.dto.ProjectDTO;
 import com.company.team_management.dto.mapper.impl.ProjectMapper;
 import com.company.team_management.entities.Project;
-import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.no_such.NoSuchProjectException;
-import com.company.team_management.exceptions.already_exists.ProjectAlreadyExistsException;
 import com.company.team_management.services.impl.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -142,46 +138,5 @@ class ProjectControllerTest {
                 .andExpect(content().json(TestUtils.objectToJsonString(projects)))
                 .andExpect(status().isOk());
         verify(statService, times(1)).getProjectsWithInfoWithinBudget(0L, maxBudget);
-    }
-
-    @Test
-    public void handleNoSuchProjectException() throws Exception {
-        int id = project.getId();
-        when(service.findById(id))
-                .thenThrow(new NoSuchProjectException(String.format("There is no project with id = %d", id)));
-
-        mockMvc.perform(get("/company/project/{id}", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
-                .andExpect(
-                        content().json(TestUtils.objectToJsonString(
-                                new ErrorResponse(
-                                        HttpStatus.CONFLICT,
-                                        String.format("There is no project with id = %d", id)
-                                )
-                        ))
-                );
-        verify(service, times(1)).findById(id);
-    }
-
-    @Test
-    public void handleProjectAlreadyExistsException() throws Exception {
-        when(service.save(project))
-                .thenThrow(new ProjectAlreadyExistsException("Project already exists!"));
-
-        mockMvc.perform(post("/company/project")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.objectToJsonString(dto)))
-                .andExpect(
-                        content().json(
-                                TestUtils.objectToJsonString(
-                                        new ErrorResponse(
-                                                HttpStatus.CONFLICT,
-                                                "Project already exists!"
-                                        )
-                                )
-                        )
-                );
-        verify(service, times(1)).save(project);
     }
 }
