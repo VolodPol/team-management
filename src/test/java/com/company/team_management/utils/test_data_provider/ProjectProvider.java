@@ -10,7 +10,7 @@ public class ProjectProvider implements TestEntityProvider<Project> {
     public Project generateEntity() {
         return new Project.Builder()
                 .addTitle("Pet Project")
-                .addGoal("Obtain REST API skills")
+                .addGoal("Obtain REST API skills.")
                 .addBudget((long) 0)
                 .build();
     }
@@ -20,7 +20,7 @@ public class ProjectProvider implements TestEntityProvider<Project> {
         return List.of(
                 new Project.Builder()
                         .addTitle("Led Lamp IOT")
-                        .addGoal("Led Lamp")
+                        .addGoal("Led Lamp.")
                         .addBudget(1000L)
                         .build(),
 

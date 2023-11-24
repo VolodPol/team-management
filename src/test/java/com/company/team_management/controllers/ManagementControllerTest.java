@@ -15,13 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ManagementController.class)
 @ComponentScan(basePackages = "com.company.team_management.dto.mapper")
@@ -61,9 +61,12 @@ public class ManagementControllerTest {
         mvc.perform(post("/company/manage/addProject/{id}", project.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(initCopy)))
-                .andExpect(content().json(TestUtils.objectToJsonString(updatedDto)))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpectAll(
+                        content().json(TestUtils.objectToJsonString(updatedDto)),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        status().isCreated(),
+                        header().exists(HttpHeaders.LOCATION)
+                );
         verify(service, times(1)).addNewProgrammerToProject(project.getId(), initCopy);
     }
 
@@ -76,7 +79,7 @@ public class ManagementControllerTest {
                 .thenReturn(programmer);
 
         mvc.perform(post("/company/manage/addProject?programmer={empId}&project={projectId}",
-                programmer.getId(), project.getId()))
+                        programmer.getId(), project.getId()))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(updated)),
                         content().contentType(MediaType.APPLICATION_JSON),

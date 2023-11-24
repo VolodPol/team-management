@@ -20,13 +20,13 @@ class CustomProjectRepositoryImplTest {
     @Autowired
     private CustomProjectRepositoryImpl repository;
     @Autowired
-    private ProjectRepository helperRepository;
+    private ProjectRepository projectRepo;
     private List<Project> projects;
     private final ProjectProvider provider = new ProjectProvider();
 
     @BeforeEach
     public void setUp() {
-        helperRepository.deleteAllInBatch();
+        projectRepo.deleteAllInBatch();
         projects = provider.generateEntityList();
     }
 
@@ -62,6 +62,6 @@ class CustomProjectRepositoryImplTest {
                     .build();
             programmer.addProject(project);
         }
-        helperRepository.saveAll(projects);
+        projectRepo.saveAll(projects);
     }
 }

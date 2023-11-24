@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -55,8 +56,11 @@ class ProgrammerControllerTest {
         mockMvc.perform(post("/company/programmer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(programmer)))
-                .andExpect(status().isCreated())
-                .andExpect(content().json(TestUtils.objectToJsonString(dto)));
+                .andExpectAll(
+                        status().isCreated(),
+                        content().json(TestUtils.objectToJsonString(dto)),
+                        header().exists(HttpHeaders.LOCATION)
+                );
 
         verify(programmerService, times(1)).save(programmer);
     }

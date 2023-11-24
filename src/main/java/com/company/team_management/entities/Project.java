@@ -1,6 +1,7 @@
 package com.company.team_management.entities;
 
 import com.company.team_management.validation.CreateGroup;
+import com.company.team_management.validation.TextField;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -26,7 +27,7 @@ public class Project {
     @NotNull(groups = CreateGroup.class) @NotEmpty(groups = CreateGroup.class)
     private String title;
 
-    @NotNull(groups = CreateGroup.class) @NotEmpty(groups = CreateGroup.class)
+    @TextField(groups = CreateGroup.class)
     private String goal;
 
     @NotNull(groups = CreateGroup.class)

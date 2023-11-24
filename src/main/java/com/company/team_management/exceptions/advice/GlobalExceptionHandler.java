@@ -1,32 +1,46 @@
 package com.company.team_management.exceptions.advice;
 
 
-import com.company.team_management.exceptions.ErrorResponse;
 import com.company.team_management.exceptions.already_exists.EntityExistsException;
 import com.company.team_management.exceptions.no_such.NoSuchEntityException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    // TODO: 11/19/2023 Implement handling of the MethodArgumentNotValidException
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = ConstraintViolationException.class)
-    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
-        StringBuilder body = new StringBuilder("Constraint violations : \n");
-        String collectedViolations = e.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .collect(Collectors.joining("\n"));
-        body.append(collectedViolations);
+    public ViolationErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
+        ViolationErrorResponse errorResponse = new ViolationErrorResponse();
+        e.getConstraintViolations()
+                .forEach(violation -> errorResponse.addViolation(
+                        new Violation(violation.getPropertyPath().toString(), violation.getMessage()))
+                );
 
-        return ResponseEntity.badRequest().body(body.toString());
+        return errorResponse;
     }
 
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ViolationErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+        ViolationErrorResponse errorResponse = new ViolationErrorResponse();
+        e.getFieldErrors().forEach(
+                error -> errorResponse.addViolation(
+                        new Violation(error.getField(), error.getDefaultMessage())
+                )
+        );
+        return errorResponse;
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(value = {NoSuchEntityException.class, EntityExistsException.class})
     public ErrorResponse handleCommonExceptions(RuntimeException exception) {
         return new ErrorResponse(HttpStatus.CONFLICT, exception.getMessage());
