@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Integer>, CustomProjectRepository {
-    @Query("select p from Project p left join fetch p.programmers")
+    @Query("select p from Project p left join fetch p.programmers left join fetch p.tasks")
     List<Project> findAllFetch();
 
     @Query("select p from Project p left join fetch p.programmers where p.id = :id")

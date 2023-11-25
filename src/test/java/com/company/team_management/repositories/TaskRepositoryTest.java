@@ -5,11 +5,13 @@ import com.company.team_management.entities.Task;
 import com.company.team_management.utils.test_data_provider.ProjectProvider;
 import com.company.team_management.utils.test_data_provider.TaskProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,18 +20,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Transactional
 public class TaskRepositoryTest {
     private final TaskRepository taskRepo;
+    private final ProjectRepository pjRepo;
     private Task task;
     private List<Task> tasks;
-    private final Project project;
+    private Project project;
     private final TestEntityProvider<Task> taskProvider = new TaskProvider();
 
     @Autowired
     public TaskRepositoryTest(TaskRepository taskRepo, ProjectRepository projectRepo) {
         this.taskRepo = taskRepo;
-        project = new ProjectProvider().generateEntity();
-        projectRepo.save(project);
+        this.pjRepo = projectRepo;
     }
 
     @BeforeEach
@@ -38,8 +41,16 @@ public class TaskRepositoryTest {
         task = taskProvider.generateEntity();
         tasks = taskProvider.generateEntityList();
 
+        project = new ProjectProvider().generateEntity();
+        pjRepo.save(project);
         task.setProject(project);
         tasks.forEach(task -> task.setProject(project));
+    }
+
+    @AfterEach
+    public void tearDown() {
+        taskRepo.deleteAllInBatch();
+        pjRepo.deleteAll();
     }
 
     @Test

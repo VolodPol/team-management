@@ -13,4 +13,5 @@ public class ProjectDTO {
     private String goal;
     private String budget;
     private List<String> programmers;
+    private List<String> tasks;
 }
