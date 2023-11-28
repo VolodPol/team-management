@@ -2,7 +2,8 @@ package com.company.team_management.services;
 
 import java.util.List;
 
-public interface IService<E> extends Settable {
+
+public interface IService<E> {
     E save(E entity);
     List<E> findAll();
     E findById(int id);

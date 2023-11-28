@@ -1,20 +1,19 @@
 package com.company.team_management.services.impl;
 
 import com.company.team_management.entities.Project;
-import com.company.team_management.exceptions.project.NoSuchProjectException;
-import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
 import com.company.team_management.repositories.ProjectRepository;
-import com.company.team_management.services.IService;
+import com.company.team_management.services.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 @Service
-public class ProjectService implements IService<Project> {
+public class ProjectService extends AbstractService<Project> {
     private final ProjectRepository projectRepository;
 
     @Autowired
@@ -22,16 +21,18 @@ public class ProjectService implements IService<Project> {
         this.projectRepository = projectRepository;
     }
 
+    @CacheEvict(cacheNames = {"projects", "bestProgrammers"}, allEntries = true)
     @Transactional
     @Override
     public Project save(Project project) {
         Integer id = project.getId();
         if (id != null && projectRepository.findById(id).orElse(null) != null) {
-            throw new ProjectAlreadyExistsException("Project already exists!");
+            throw new EntityExistsException("Project already exists!");
         }
         return projectRepository.save(project);
     }
 
+    @Cacheable("projects")
     @Transactional(readOnly = true)
     @Override
     public List<Project> findAll() {
@@ -44,6 +45,7 @@ public class ProjectService implements IService<Project> {
         return findIfPresent(id, projectRepository::findByIdFetch);
     }
 
+    @CacheEvict(cacheNames = {"projects", "bestProgrammers"}, allEntries = true)
     @Transactional
     @Override
     public void deleteById(int id) {
@@ -51,6 +53,7 @@ public class ProjectService implements IService<Project> {
         projectRepository.deleteById(id);
     }
 
+    @CacheEvict(cacheNames = "projects", allEntries = true)
     @Transactional
     @Override
     public Project updateById(int id, Project project) {
@@ -59,15 +62,7 @@ public class ProjectService implements IService<Project> {
         setNullable(found::setTitle, project.getTitle());
         setNullable(found::setGoal, project.getGoal());
         setNullable(found::setBudget, project.getBudget());
-        setNullable(found::setFinished, project.getFinished());
 
         return found;
-    }
-
-    private Project findIfPresent(int id, Function<Integer, Optional<Project>> finder) {
-        return finder.apply(id)
-                .orElseThrow(
-                        () -> new NoSuchProjectException(String.format("There is no project with id = %d", id))
-                );
     }
 }

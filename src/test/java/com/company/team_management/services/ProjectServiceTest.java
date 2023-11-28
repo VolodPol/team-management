@@ -1,11 +1,11 @@
 package com.company.team_management.services;
 
-import com.company.team_management.ProjectProvider;
-import com.company.team_management.TestEntityProvider;
-import com.company.team_management.TestUtils;
+import com.company.team_management.utils.test_data_provider.ProjectProvider;
+import com.company.team_management.utils.test_data_provider.TestEntityProvider;
+import com.company.team_management.utils.TestUtils;
 import com.company.team_management.entities.Project;
-import com.company.team_management.exceptions.project.NoSuchProjectException;
-import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
+import com.company.team_management.exceptions.no_such.NoSuchEntityException;
+import com.company.team_management.exceptions.already_exists.EntityExistsException;
 import com.company.team_management.repositories.ProjectRepository;
 import com.company.team_management.services.impl.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +55,7 @@ class ProjectServiceTest {
 
         assertAll(
                 () -> assertEquals(project, service.findById(projectId)),
-                () -> assertThrows(NoSuchProjectException.class, () -> service.findById(projectId + 1))
+                () -> assertThrows(NoSuchEntityException.class, () -> service.findById(projectId + 1))
         );
         verify(repository, times(1)).findByIdFetch(projectId);
     }
@@ -66,7 +66,7 @@ class ProjectServiceTest {
         project.setId(TestUtils.generateId());
         when(repository.findById(project.getId())).thenReturn(Optional.of(project));
 
-        assertThrowsExactly(ProjectAlreadyExistsException.class, () -> service.save(project),
+        assertThrowsExactly(EntityExistsException.class, () -> service.save(project),
                 "Project already exists!");
         verify(repository, times(1)).findById(any());
     }
@@ -106,9 +106,9 @@ class ProjectServiceTest {
         int id = TestUtils.generateId();
         project.setId(id);
         when(repository.findById(id))
-                .thenThrow(new NoSuchProjectException(String.format("There is no project with id = %d", id)));
+                .thenThrow(new NoSuchEntityException(String.format("There is no project with id = %d", id)));
 
-        assertThrowsExactly(NoSuchProjectException.class, () -> service.deleteById(id),
+        assertThrowsExactly(NoSuchEntityException.class, () -> service.deleteById(id),
                 String.format("There is no project with id = %d", id));
         verify(repository, times(1)).findById(id);
     }
@@ -122,22 +122,18 @@ class ProjectServiceTest {
         Project updated = entityProvider.generateEntity();
         updated.setId(projectId);
         updated.setBudget(updated.getBudget() + 1000);
-        updated.setFinished(!updated.getFinished());
-
-//        when(repository.save(updated)).thenReturn(updated);
 
         assertEquals(updated, service.updateById(projectId, updated));
         verify(repository, times(1)).findByIdFetch(any());
-//        verify(repository, times(1)).save(updated);
     }
 
     @Test
     public void updateNonExistingProject() {
         project.setId(TestUtils.generateId());
         when(repository.findByIdFetch(project.getId()))
-                .thenThrow(new ProjectAlreadyExistsException("Project already exists!"));
+                .thenThrow(new EntityExistsException("Project already exists!"));
 
-        assertThrowsExactly(ProjectAlreadyExistsException.class, () -> service.updateById(project.getId(), project),
+        assertThrowsExactly(EntityExistsException.class, () -> service.updateById(project.getId(), project),
                 "Project already exists!");
         verify(repository, times(0)).save(project);
     }

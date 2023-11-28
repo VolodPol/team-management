@@ -1,65 +1,82 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.dto.ProjectDTO;
-import com.company.team_management.dto.ProjectMapper;
+import com.company.team_management.dto.mapper.Mapper;
+import com.company.team_management.dto.mapper.impl.ProjectMapper;
 import com.company.team_management.entities.Project;
-import com.company.team_management.exceptions.ErrorResponse;
-import com.company.team_management.exceptions.project.NoSuchProjectException;
-import com.company.team_management.exceptions.project.ProjectAlreadyExistsException;
 import com.company.team_management.services.IService;
+import com.company.team_management.services.StatisticsService;
 import com.company.team_management.services.impl.ProjectService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.company.team_management.validation.CreateGroup;
+import com.company.team_management.validation.UpdateGroup;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
+@Validated
 @RestController
+@RequestMapping("company")
 public class ProjectController {
     private final IService<Project> service;
-    private final ProjectMapper mapper;
+    private final StatisticsService statisticsService;
+    private final Mapper<Project, ProjectDTO> mapper;
 
-    @Autowired
-    public ProjectController(ProjectService service, ProjectMapper mapper) {
+    public ProjectController(ProjectService service, StatisticsService statisticsService, ProjectMapper mapper) {
         this.service = service;
+        this.statisticsService = statisticsService;
         this.mapper = mapper;
     }
 
-    @GetMapping(value = "company/projects", produces = "application/json")
+    @GetMapping(value = "/projects", produces = "application/json")
     public ResponseEntity<List<ProjectDTO>> getAll() {
-        List<ProjectDTO> dtoList = service.findAll().stream()
-                .map(mapper::toDTO)
-                .toList();
+        List<ProjectDTO> dtoList = mapper.collectionToDto(service.findAll());
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 
-    @GetMapping(value = "company/project/{id}", produces = "application/json")
-    public ResponseEntity<ProjectDTO> findById(@PathVariable int id) {
-        ProjectDTO dto = mapper.toDTO(service.findById(id));
+    @GetMapping(value = "/project/{id}", produces = "application/json")
+    public ResponseEntity<ProjectDTO> findById(@PathVariable @Min(0) int id) {
+        ProjectDTO dto = mapper.toDto(service.findById(id));
         return new ResponseEntity<>(dto, HttpStatus.FOUND);
     }
 
-    @PostMapping(value = "company/project", consumes = "application/json")
-    public ResponseEntity<ProjectDTO> addProject(@RequestBody Project project) {
-        ProjectDTO dto = mapper.toDTO(service.save(project));
-        return new ResponseEntity<>(dto, HttpStatus.CREATED);
+    @Validated(value = CreateGroup.class)
+    @PostMapping(value = "/project", consumes = "application/json")
+    public ResponseEntity<ProjectDTO> addProject(@Valid @RequestBody Project project) {
+        ProjectDTO dto = mapper.toDto(service.save(project));
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(project.getId())
+                .toUri();
+
+        return ResponseEntity.created(location)
+                .body(dto);
     }
 
-    @DeleteMapping("company/project/{id}")
-    public ResponseEntity<String> deleteProject(@PathVariable int id) {
+    @DeleteMapping("/project/{id}")
+    public ResponseEntity<String> deleteProject(@PathVariable @Min(0) int id) {
         service.deleteById(id);
         return new ResponseEntity<>("Successfully deleted!", HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping(value = "company/project/{id}", consumes = "application/json")
-    public ResponseEntity<ProjectDTO> updateProject(@PathVariable int id, @RequestBody Project updated) {
-        ProjectDTO dto = mapper.toDTO(service.updateById(id, updated));
+    @Validated(value = UpdateGroup.class)
+    @PutMapping(value = "/project/{id}", consumes = "application/json")
+    public ResponseEntity<ProjectDTO> updateProject(@PathVariable @Min(0) int id,
+                                                    @Valid @RequestBody Project updated) {
+        ProjectDTO dto = mapper.toDto(service.updateById(id, updated));
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    @ExceptionHandler(value = {NoSuchProjectException.class, ProjectAlreadyExistsException.class})
-    public ErrorResponse handle(RuntimeException exception) {
-        return new ErrorResponse(HttpStatus.CONFLICT, exception.getMessage());
+    @GetMapping(value = "/projects/budget", produces = "application/json")
+    public List<Project> getProjectsWithinBudget(@RequestParam(name = "lower") @Min(0) long lowerBound,
+                                                 @RequestParam(name = "upper") @Min(0) long upperBound) {
+        return statisticsService.getProjectsWithInfoWithinBudget(lowerBound, upperBound);
     }
 }

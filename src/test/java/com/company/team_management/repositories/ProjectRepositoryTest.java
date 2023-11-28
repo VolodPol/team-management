@@ -1,23 +1,23 @@
 package com.company.team_management.repositories;
 
-import com.company.team_management.ProjectProvider;
-import com.company.team_management.TestEntityProvider;
+import com.company.team_management.utils.test_data_provider.ProjectProvider;
+import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.entities.Project;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Transactional
 class ProjectRepositoryTest {
     @Autowired
     private ProjectRepository repository;
@@ -30,6 +30,11 @@ class ProjectRepositoryTest {
         repository.deleteAllInBatch();
         project = entityProvider.generateEntity();
         projects = entityProvider.generateEntityList();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        repository.deleteAllInBatch();
     }
 
     @Test
@@ -77,7 +82,6 @@ class ProjectRepositoryTest {
 
         Project toUpdate = repository.findById(project.getId()).orElseThrow();
         toUpdate.setBudget(toUpdate.getBudget() + 1000);
-        toUpdate.setFinished(!toUpdate.getFinished());
         repository.save(toUpdate);
 
         assertEquals(toUpdate, repository.findById(project.getId()).orElse(null));
