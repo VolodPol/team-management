@@ -1,5 +1,6 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
 import com.company.team_management.utils.test_data_provider.ProjectProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ManagementController.class)
 @ComponentScan(basePackages = "com.company.team_management.dto.mapper")
+@Import(SecurityConfig.class)
 public class ManagementControllerTest {
     @Autowired
     private MockMvc mvc;
@@ -59,6 +62,7 @@ public class ManagementControllerTest {
         when(service.addNewProgrammerToProject(project.getId(), initCopy)).thenReturn(programmer);
 
         mvc.perform(post("/company/manage/addProject/{id}", project.getId())
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(initCopy)))
                 .andExpectAll(
@@ -79,7 +83,8 @@ public class ManagementControllerTest {
                 .thenReturn(programmer);
 
         mvc.perform(post("/company/manage/addProject?programmer={empId}&project={projectId}",
-                        programmer.getId(), project.getId()))
+                        programmer.getId(), project.getId())
+                        .header("X-API-KEY", "tm07To05ken*"))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(updated)),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -95,7 +100,8 @@ public class ManagementControllerTest {
                 project.getId(), programmer.getId());
 
         mvc.perform(post("/company/manage/removeProject?programmer={id}&project={id}",
-                        programmer.getId(), project.getId()))
+                        programmer.getId(), project.getId())
+                        .header("X-API-KEY", "tm07To05ken*"))
                 .andExpectAll(
                         content().string(message),
                         status().isOk()

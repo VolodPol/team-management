@@ -5,36 +5,21 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.file.AccessDeniedException;
 
 public class AuthenticationFilter extends GenericFilterBean {
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
-        try {
-            Authentication authentication = SecurityService.getAuthentication((HttpServletRequest) servletRequest);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (Exception exception) {
-            HttpServletResponse response = (HttpServletResponse) servletResponse;
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            writeExceptionMessage(response, exception);
-        }
-        filterChain.doFilter(servletRequest, servletResponse);
-    }
-
-    private void writeExceptionMessage(HttpServletResponse response, Exception e) throws IOException {
-        try (PrintWriter writer = response.getWriter()) {
-            writer.print(e.getMessage());
-            writer.flush();
-        }
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        Authentication authentication = SecurityService.getAuthentication((HttpServletRequest) request);
+        if (authentication == null)
+            throw new AccessDeniedException("Not valid KEY!");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        filterChain.doFilter(request, response);
     }
 }

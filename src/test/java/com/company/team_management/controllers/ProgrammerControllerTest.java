@@ -1,5 +1,6 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ProgrammerController.class)
 @ComponentScan(basePackages = {"com.company.team_management.dto.mapper"})
+@Import(SecurityConfig.class)
 class ProgrammerControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -54,6 +57,7 @@ class ProgrammerControllerTest {
     public void postEmployee() throws Exception {
         when(programmerService.save(any())).thenReturn(programmer);
         mockMvc.perform(post("/company/programmer")
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(programmer)))
                 .andExpectAll(
@@ -71,7 +75,8 @@ class ProgrammerControllerTest {
         when(programmerService.findAll()).thenReturn(fetched);
         List<ProgrammerDto> dtoList = mapper.collectionToDto(fetched);
 
-        mockMvc.perform(get("/company/programmers"))
+        mockMvc.perform(get("/company/programmers")
+                        .header("X-API-KEY", "tm07To05ken*"))
                 .andExpectAll(
                         status().isOk(),
                         content().json(TestUtils.objectToJsonString(dtoList))
@@ -83,7 +88,8 @@ class ProgrammerControllerTest {
     public void findExistingEmployeeByIdReturnsFound() throws Exception {
         when(programmerService.findById(programmer.getId())).thenReturn(programmer);
 
-        mockMvc.perform(get("/company/programmer/{id}", programmer.getId()))
+        mockMvc.perform(get("/company/programmer/{id}", programmer.getId())
+                        .header("X-API-KEY", "tm07To05ken*"))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(dto)),
                         status().isFound()
@@ -95,7 +101,8 @@ class ProgrammerControllerTest {
     public void deleteEmployeeById() throws Exception {
         doNothing().when(programmerService).deleteById(programmer.getId());
 
-        mockMvc.perform(delete("/company/programmer/{id}", programmer.getId()))
+        mockMvc.perform(delete("/company/programmer/{id}", programmer.getId())
+                        .header("X-API-KEY", "tm07To05ken*"))
                 .andExpectAll(
                         status().isNoContent(),
                         content().string("Successfully deleted!")
@@ -115,6 +122,7 @@ class ProgrammerControllerTest {
         when(programmerService.updateById(programmer.getId(), updated)).thenReturn(updated);
 
         mockMvc.perform(put("/company/programmer/{id}", programmer.getId())
+                .header("X-API-KEY", "tm07To05ken*")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.objectToJsonString(updated))
         ).andExpectAll(status().isOk(), content().json(TestUtils.objectToJsonString(updatedDTO)));
@@ -127,7 +135,8 @@ class ProgrammerControllerTest {
         when(statService.findMostSuccessful()).thenReturn(programmerList);
         List<ProgrammerDto> dtoList = mapper.collectionToDto(programmerList);
 
-        mockMvc.perform(get("/company/programmers/best"))
+        mockMvc.perform(get("/company/programmers/best")
+                        .header("X-API-KEY", "tm07To05ken*"))
                 .andExpectAll(
                         MockMvcResultMatchers.content().json(TestUtils.objectToJsonString(dtoList)),
                         MockMvcResultMatchers.status().isOk()

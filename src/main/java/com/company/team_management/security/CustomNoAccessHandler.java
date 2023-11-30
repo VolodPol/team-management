@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.Writer;
 
-@Component
 public class CustomNoAccessHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception)

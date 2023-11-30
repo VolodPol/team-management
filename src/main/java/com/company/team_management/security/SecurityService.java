@@ -11,7 +11,7 @@ public class SecurityService {
     public static Authentication getAuthentication(HttpServletRequest request) {
         String key = request.getHeader(AUTH_TOKEN_HEADER);
         if (key == null || !key.equals(AUTH_TOKEN))
-            throw new RuntimeException("Not valid API key");
+            return null;
 
         return new ApiAuthentication(key, AuthorityUtils.NO_AUTHORITIES);
     }

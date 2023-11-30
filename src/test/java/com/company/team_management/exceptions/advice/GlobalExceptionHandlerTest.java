@@ -52,8 +52,9 @@ class GlobalExceptionHandlerTest {
                 """;
 
         mvc.perform(post("/company/department")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(department)))
+                        .header("X-API-KEY", "tm07To05ken*")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(department)))
                 .andExpectAll(
                         status().isBadRequest(),
                         content().json(expectedContent)
@@ -74,7 +75,8 @@ class GlobalExceptionHandlerTest {
                 }
                 """;
         mvc.perform(get("/company/programmer/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .header("X-API-KEY", "tm07To05ken*")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isBadRequest(),
                         content().json(expectedContent)
@@ -89,7 +91,8 @@ class GlobalExceptionHandlerTest {
                 .when(projectService).deleteById(id);
 
         mvc.perform(delete("/company/project/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .header("X-API-KEY", "tm07To05ken*")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isConflict(),
                         content().json(TestUtils.objectToJsonString(
@@ -111,8 +114,9 @@ class GlobalExceptionHandlerTest {
         );
 
         mvc.perform(post("/company/task")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.objectToJsonString(task)))
+                        .header("X-API-KEY", "tm07To05ken*")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.objectToJsonString(task)))
                 .andExpectAll(
                         status().isConflict(),
                         content().json(TestUtils.objectToJsonString(
