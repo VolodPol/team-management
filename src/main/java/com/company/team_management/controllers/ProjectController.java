@@ -11,7 +11,6 @@ import com.company.team_management.validation.CreateGroup;
 import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
