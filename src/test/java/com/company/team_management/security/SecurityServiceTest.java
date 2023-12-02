@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,26 +16,17 @@ class SecurityServiceTest {
     private HttpServletRequest request;
     private final static String HEADER = "X-API-KEY";
     private static final String CORRECT_TOKEN = "tm07To05ken*";
-    private static final String EXCEPTION_MESSAGE = "There is no valid key token provided!";
 
     @Test
     public void testNoAccessWithNoKeyAtAll() {
         when(request.getHeader(HEADER)).thenReturn(null);
-        assertThrowsExactly(
-                AccessDeniedException.class,
-                () -> SecurityService.getAuthentication(request),
-                EXCEPTION_MESSAGE
-        );
+        assertNull(SecurityService.getAuthentication(request));
     }
 
     @Test
     public void testNoAccessWithInvalidKey() {
         when(request.getHeader(HEADER)).thenReturn("invalid");
-        assertThrowsExactly(
-                AccessDeniedException.class,
-                () -> SecurityService.getAuthentication(request),
-                EXCEPTION_MESSAGE
-        );
+        assertNull(SecurityService.getAuthentication(request));
     }
 
     @Test
@@ -45,6 +35,5 @@ class SecurityServiceTest {
         ApiAuthentication expected = new ApiAuthentication(CORRECT_TOKEN, AuthorityUtils.NO_AUTHORITIES);
 
         assertEquals(expected, SecurityService.getAuthentication(request));
-        assertDoesNotThrow(() -> SecurityService.getAuthentication(request), EXCEPTION_MESSAGE);
     }
 }

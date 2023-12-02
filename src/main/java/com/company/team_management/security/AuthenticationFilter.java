@@ -18,22 +18,9 @@ public class AuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        try {
-            Authentication authentication = SecurityService.getAuthentication((HttpServletRequest) request);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (AccessDeniedException exception) {
-            handleException(response, exception);
-        }
+        Authentication authentication = SecurityService.getAuthentication((HttpServletRequest) request);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         filterChain.doFilter(request, response);
-    }
-
-    private void handleException(ServletResponse response, AccessDeniedException exception) throws IOException {
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        try (Writer writer = httpResponse.getWriter()) {
-            writer.write(exception.getMessage());
-            writer.flush();
-        }
     }
 }

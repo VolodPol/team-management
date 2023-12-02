@@ -12,7 +12,7 @@ public class SecurityService {
     public static Authentication getAuthentication(HttpServletRequest request) {
         String key = request.getHeader(AUTH_TOKEN_HEADER);
         if (key == null || !key.equals(AUTH_TOKEN))
-            throw new AccessDeniedException("There is no valid key token provided!");
+            return null;
 
         return new ApiAuthentication(key, AuthorityUtils.NO_AUTHORITIES);
     }

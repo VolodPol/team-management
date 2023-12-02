@@ -3,7 +3,6 @@ package com.company.team_management.security;
 import com.company.team_management.controllers.ProjectController;
 import com.company.team_management.entities.Project;
 import com.company.team_management.services.impl.ProjectService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -51,19 +52,19 @@ class AuthenticationFilterTest {
                         .header("X-API-KEY", "tm07To05ken*"))
                 .andDo(print())
                 .andExpect(status().isOk());
+        assertEquals(
+                new ApiAuthentication("tm07To05ken*", AuthorityUtils.NO_AUTHORITIES),
+                SecurityContextHolder.getContext().getAuthentication()
+        );
         verify(mainService, times(1)).findAll();
     }
 
     @Test
     public void testRequestWithNoValidHeader() throws Exception {
-        String expectedContent = "There is no valid key token provided!";
-        String actualContent = mockMvc.perform(get("/company/projects"))
-                .andExpect(status().is(HttpServletResponse.SC_UNAUTHORIZED))
-                .andDo(print())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        mockMvc.perform(get("/company/projects"))
+                .andExpect(status().isOk())
+                .andDo(print());
 
-        assertTrue(actualContent.contains(expectedContent));
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 }
