@@ -4,6 +4,7 @@ import com.company.team_management.dto.TaskDTO;
 import com.company.team_management.dto.mapper.impl.TaskMapper;
 import com.company.team_management.entities.Project;
 import com.company.team_management.entities.Task;
+import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.services.impl.TaskService;
 import com.company.team_management.utils.TestUtils;
 import com.company.team_management.utils.test_data_provider.TaskProvider;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(TaskController.class)
 @ComponentScan(basePackages = "com.company.team_management.dto.mapper")
+@Import(SecurityConfig.class)
 public class TaskControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -53,6 +56,7 @@ public class TaskControllerTest {
         when(service.findAll()).thenReturn(tasks);
 
         mockMvc.perform(get("/company/tasks")
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
@@ -66,6 +70,7 @@ public class TaskControllerTest {
         when(service.findById(task.getId())).thenReturn(task);
 
         mockMvc.perform(get("/company/task/{id}", task.getId())
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isFound(),
@@ -79,6 +84,7 @@ public class TaskControllerTest {
         when(service.save(task)).thenReturn(task);
 
         mockMvc.perform(post("/company/task")
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(task)))
                 .andExpectAll(
@@ -94,7 +100,9 @@ public class TaskControllerTest {
         doNothing().when(service).deleteById(task.getId());
 
         mockMvc.perform(delete("/company/task/{id}", task.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-KEY", "tm07To05ken*")
+                )
                 .andExpectAll(
                         content().string("Successfully deleted!"),
                         status().isNoContent()
@@ -113,6 +121,7 @@ public class TaskControllerTest {
                 .thenReturn(toUpdate);
 
         mockMvc.perform(put("/company/task/{id}", task.getId())
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(toUpdate)))
                 .andExpectAll(

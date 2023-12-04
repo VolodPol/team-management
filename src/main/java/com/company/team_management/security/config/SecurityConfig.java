@@ -1,7 +1,7 @@
 package com.company.team_management.security.config;
 
 import com.company.team_management.security.AuthenticationFilter;
-import com.company.team_management.security.CustomNoAccessHandler;
+import com.company.team_management.security.CustomAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -23,12 +24,12 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(handler -> handler.accessDeniedHandler(noAccessHandler()))
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(authEntryPoint()))
                 .build();
     }
 
     @Bean
-    public CustomNoAccessHandler noAccessHandler() {
-        return new CustomNoAccessHandler();
+    public AuthenticationEntryPoint authEntryPoint() {
+        return new CustomAuthenticationEntryPoint();
     }
 }

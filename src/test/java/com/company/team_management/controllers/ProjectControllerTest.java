@@ -1,5 +1,6 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.utils.test_data_provider.ProjectProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ProjectController.class)
 @ComponentScan(basePackages = "com.company.team_management.dto.mapper")
+@Import(SecurityConfig.class)
 class ProjectControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -55,6 +58,7 @@ class ProjectControllerTest {
         when(service.findAll()).thenReturn(projects);
 
         mockMvc.perform(get("/company/projects")
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(dtoList)))
                 .andExpectAll(
@@ -69,6 +73,7 @@ class ProjectControllerTest {
         when(service.findById(project.getId())).thenReturn(project);
 
         mockMvc.perform(get("/company/project/{id}", project.getId())
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(dto)))
                 .andExpectAll(
@@ -83,6 +88,7 @@ class ProjectControllerTest {
         when(service.save(project)).thenReturn(project);
 
         mockMvc.perform(post("/company/project")
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(dto)))
                 .andExpectAll(
@@ -98,6 +104,7 @@ class ProjectControllerTest {
         doNothing().when(service).deleteById(project.getId());
 
         mockMvc.perform(delete("/company/project/{id}", project.getId())
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         content().string("Successfully deleted!"),
@@ -116,6 +123,7 @@ class ProjectControllerTest {
                 .thenReturn(toUpdate);
 
         mockMvc.perform(put("/company/project/{id}", project.getId())
+                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(updatedDto)))
                 .andExpectAll(
@@ -135,6 +143,7 @@ class ProjectControllerTest {
 
         when(statService.getProjectsWithInfoWithinBudget(0L, maxBudget)).thenReturn(projects);
         mockMvc.perform(get("/company/projects/budget")
+                        .header("X-API-KEY", "tm07To05ken*")
                         .param("lower", String.valueOf(0L))
                         .param("upper", String.valueOf(maxBudget)))
                 .andExpect(content().json(TestUtils.objectToJsonString(projects)))
