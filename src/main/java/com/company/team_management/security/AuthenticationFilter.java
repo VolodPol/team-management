@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -18,8 +19,10 @@ public class AuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
         Authentication authentication = SecurityService.getAuthentication((HttpServletRequest) request);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
 
         filterChain.doFilter(request, response);
     }
