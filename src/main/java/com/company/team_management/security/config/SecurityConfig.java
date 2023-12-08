@@ -20,10 +20,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated())//... .anyRequest().access(CustomAuthorizationManager)
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                // logic for username & password authentication
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(authEntryPoint()))
                 .build();
     }
