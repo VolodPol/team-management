@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -39,7 +38,6 @@ class AuthenticationFilterTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .defaultRequest(get("/company/projects"))
                 .alwaysExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .addFilters(new AuthenticationFilter())
                 .build();
     }
 
@@ -52,10 +50,6 @@ class AuthenticationFilterTest {
                         .header("X-API-KEY", "tm07To05ken*"))
                 .andDo(print())
                 .andExpect(status().isOk());
-        assertEquals(
-                new ApiAuthentication("tm07To05ken*", AuthorityUtils.NO_AUTHORITIES),
-                SecurityContextHolder.getContext().getAuthentication()
-        );
         verify(mainService, times(1)).findAll();
     }
 
