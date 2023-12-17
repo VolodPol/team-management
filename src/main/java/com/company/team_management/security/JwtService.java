@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,13 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private static final String SECRET = "dd98deec25c89f03e4e12b984f8481c940f1a1dcfe76201a54c949fa82992e84";
+    @Value("${app.security.jwt.secret_key}")
+    private String secret_key;
+    @Value("${app.security.jwt.expiration}")
+    private long jwtExpiration;
+    @Value("${app.security.jwt.refresh-token.expiration}")
+    private long jwtRefreshExpiration;
+
 
     public String retrieveUsername(String jwtToken) {
         return retrieveClaim(jwtToken, Claims::getSubject);
@@ -36,7 +43,7 @@ public class JwtService {
     }
 
     private Key generateSigningKey() {
-        byte[] bytes = Decoders.BASE64.decode(SECRET);
+        byte[] bytes = Decoders.BASE64.decode(secret_key);
         return Keys.hmacShaKeyFor(bytes);
     }
 
@@ -54,11 +61,19 @@ public class JwtService {
     }
 
     public String generateJwtToken(Map<String, Object> additionalClaims, UserDetails user) {
+        return buildNewToken(additionalClaims, user, jwtExpiration);
+    }
+
+    public String generateJwtRefreshToken(UserDetails user) {
+        return buildNewToken(new HashMap<>(), user, jwtRefreshExpiration);
+    }
+
+    private String buildNewToken(Map<String, Object> additionalClaims, UserDetails user, long jwtExpiration) {
         return Jwts.builder()
                 .setClaims(additionalClaims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(generateSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

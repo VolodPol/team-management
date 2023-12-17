@@ -29,7 +29,6 @@ public class CustomLogoutHandler implements LogoutHandler {
                 .ifPresent(token -> {
                     token.setExpired(true);
                     token.setRevoked(true);
-                    tokenRepository.save(token);
                 });
     }
 }
