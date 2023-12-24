@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @Entity
+@Table(name = "token")
 @AllArgsConstructor @NoArgsConstructor
 public class Token {
     @Id

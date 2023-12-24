@@ -19,6 +19,7 @@ import java.util.Set;
 @Data
 @Builder
 @Entity
+@Table(name = "`user`")
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {
@@ -28,11 +29,13 @@ public class User implements UserDetails {
     @NotNull
     private String username;
     @NotNull
+    @Column(name = "password")
     private String password;
     @NotNull
     private String email;
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private Role role;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Token> tokens = new HashSet<>();

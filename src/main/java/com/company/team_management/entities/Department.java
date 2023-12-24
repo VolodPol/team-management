@@ -11,6 +11,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "department")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = "programmers")
