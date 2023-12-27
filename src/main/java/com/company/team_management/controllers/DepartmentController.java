@@ -2,7 +2,7 @@ package com.company.team_management.controllers;
 
 import com.company.team_management.dto.DepartmentDto;
 import com.company.team_management.entities.Department;
-import com.company.team_management.mapper.EntityMapper;
+import com.company.team_management.mapper.DepartmentMapper;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.validation.CreateGroup;
@@ -26,7 +26,7 @@ import java.util.List;
 public class DepartmentController {
     private final IService<Department> service;
     private final StatisticsService statService;
-    private final EntityMapper<Department, DepartmentDto> mapper;
+    private final DepartmentMapper mapper;
 
     @Validated(value = CreateGroup.class)
     @PostMapping(value = "/department", consumes = "application/json")

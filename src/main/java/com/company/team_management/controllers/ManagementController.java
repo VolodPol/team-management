@@ -2,7 +2,7 @@ package com.company.team_management.controllers;
 
 import com.company.team_management.dto.ProgrammerDto;
 import com.company.team_management.entities.Programmer;
-import com.company.team_management.mapper.EntityMapper;
+import com.company.team_management.mapper.ProgrammerMapper;
 import com.company.team_management.services.impl.ManagementService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -21,7 +21,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class ManagementController {
     private final ManagementService managementService;
-    private final EntityMapper<Programmer, ProgrammerDto> mapper;
+    private final ProgrammerMapper mapper;
 
     @PostMapping(value = "/manage/addProject/{id}",
             consumes = "application/json", produces = "application/json")

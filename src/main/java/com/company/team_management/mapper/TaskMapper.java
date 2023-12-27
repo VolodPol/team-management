@@ -8,22 +8,17 @@ import org.mapstruct.*;
 import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public abstract class TaskMapper implements EntityMapper<Task, TaskDTO> {
-    @Override
-    public abstract TaskDTO entityToDTO(Task task);
-    @Override
+public interface TaskMapper {
+    TaskDTO entityToDTO(Task task);
     @Mapping(target = "project", ignore = true)
-    public abstract Task dtoToEntity(TaskDTO dto);
+    Task dtoToEntity(TaskDTO dto);
 
-    @Override
-    public abstract List<TaskDTO> collectionToDTO(List<Task> tasks);
-    @Override
-    public abstract List<Task> collectionFromDTO(List<TaskDTO> dtoList);
+    List<TaskDTO> collectionToDTO(List<Task> tasks);
 
-    protected String statusToString(Task.Status status) {
+    default String statusToString(Task.Status status) {
         return status.toString();
     }
-    protected String projectToString(Project project) {
+    default String projectToString(Project project) {
         return project.getTitle();
     }
 }

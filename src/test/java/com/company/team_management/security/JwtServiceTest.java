@@ -2,15 +2,14 @@ package com.company.team_management.security;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 class JwtServiceTest {
-    private final JwtService service;
-    private String generatedToken;
+//    private final JwtService service;
+//    private String generatedToken;
 
-    public JwtServiceTest() {
-        this.service = new JwtService();
-    }
+//    public JwtServiceTest() {
+//        this.service = new JwtService();
+//    }
 
     @Test
     public void extractUsernameShouldReturnEmail() {

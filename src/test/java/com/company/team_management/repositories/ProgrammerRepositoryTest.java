@@ -1,9 +1,7 @@
 package com.company.team_management.repositories;
 
-import com.company.team_management.TeamManagementApplication;
 import com.company.team_management.entities.Project;
 import com.company.team_management.entities.Task;
-import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.entities.Programmer;
@@ -14,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

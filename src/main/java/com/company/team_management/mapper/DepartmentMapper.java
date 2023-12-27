@@ -9,21 +9,16 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public abstract class DepartmentMapper implements EntityMapper<Department, DepartmentDto> {
-    @Override
+public interface DepartmentMapper {
     @Mapping(target = "address", source = "location")
-    public abstract DepartmentDto entityToDTO(Department department);
-    @Override
+    DepartmentDto entityToDTO(Department department);
     @Mapping(target = "location", source = "address")
     @Mapping(target = "programmers", ignore = true)
-    public abstract Department dtoToEntity(DepartmentDto dto);
+    Department dtoToEntity(DepartmentDto dto);
 
-    @Override
-    public abstract List<DepartmentDto> collectionToDTO(List<Department> departments);
-    @Override
-    public abstract List<Department> collectionFromDTO(List<DepartmentDto> dtoList);
+    List<DepartmentDto> collectionToDTO(List<Department> departments);
 
-    protected String programmerToName(Programmer programmer) {
+    default String programmerToName(Programmer programmer) {
         return programmer.getFullName();
     }
 }

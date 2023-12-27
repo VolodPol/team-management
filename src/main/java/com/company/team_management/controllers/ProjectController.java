@@ -2,11 +2,9 @@ package com.company.team_management.controllers;
 
 import com.company.team_management.dto.ProjectDTO;
 import com.company.team_management.entities.Project;
-import com.company.team_management.mapper.EntityMapper;
 import com.company.team_management.mapper.ProjectMapper;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.StatisticsService;
-import com.company.team_management.services.impl.ProjectService;
 import com.company.team_management.validation.CreateGroup;
 import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
@@ -28,7 +26,7 @@ import java.util.List;
 public class ProjectController {
     private final IService<Project> service;
     private final StatisticsService statisticsService;
-    private final EntityMapper<Project, ProjectDTO> mapper;
+    private final ProjectMapper mapper;
 
     @GetMapping(value = "/projects", produces = "application/json")
     public ResponseEntity<List<ProjectDTO>> getAll() {

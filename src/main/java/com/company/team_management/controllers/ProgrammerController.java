@@ -1,18 +1,15 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.dto.ProgrammerDto;
-import com.company.team_management.mapper.EntityMapper;
 import com.company.team_management.mapper.ProgrammerMapper;
 import com.company.team_management.entities.Programmer;
 import com.company.team_management.services.StatisticsService;
-import com.company.team_management.services.impl.ProgrammerService;
 import com.company.team_management.services.IService;
 import com.company.team_management.validation.CreateGroup;
 import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +26,7 @@ import java.util.List;
 public class ProgrammerController {
     private final IService<Programmer> service;
     private final StatisticsService statService;
-    private final EntityMapper<Programmer, ProgrammerDto> mapper;
+    private final ProgrammerMapper mapper;
 
     @Validated(value = CreateGroup.class)
     @PostMapping(value = "/programmer", consumes = "application/json", produces = "application/json")

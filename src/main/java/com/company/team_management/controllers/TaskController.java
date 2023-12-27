@@ -2,7 +2,7 @@ package com.company.team_management.controllers;
 
 import com.company.team_management.dto.TaskDTO;
 import com.company.team_management.entities.Task;
-import com.company.team_management.mapper.EntityMapper;
+import com.company.team_management.mapper.TaskMapper;
 import com.company.team_management.services.IService;
 import com.company.team_management.validation.CreateGroup;
 import com.company.team_management.validation.UpdateGroup;
@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
     private final IService<Task> service;
-    private final EntityMapper<Task, TaskDTO> mapper;
+    private final TaskMapper mapper;
 
     @GetMapping(value = "/tasks", produces = "application/json")
     public ResponseEntity<List<TaskDTO>> getAll() {
