@@ -1,12 +1,12 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.mapper.ProgrammerMapper;
 import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.utils.TestUtils;
 import com.company.team_management.dto.ProgrammerDto;
-import com.company.team_management.dto.mapper.impl.ProgrammerMapper;
 import com.company.team_management.entities.Programmer;
 import com.company.team_management.services.impl.ProgrammerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +50,7 @@ class ProgrammerControllerTest {
     public void setUp() {
         programmer = entityProvider.generateEntity();
         programmer.setId(TestUtils.generateId());
-        dto = mapper.toDto(programmer);
+        dto = mapper.entityToDTO(programmer);
     }
 
     @Test
@@ -73,7 +73,7 @@ class ProgrammerControllerTest {
     public void getAllEmployees() throws Exception {
         List<Programmer> fetched = List.of(programmer);
         when(programmerService.findAll()).thenReturn(fetched);
-        List<ProgrammerDto> dtoList = mapper.collectionToDto(fetched);
+        List<ProgrammerDto> dtoList = mapper.collectionToDTO(fetched);
 
         mockMvc.perform(get("/company/programmers")
                         .header("X-API-KEY", "tm07To05ken*"))
@@ -117,7 +117,7 @@ class ProgrammerControllerTest {
         updated.setId(programmer.getId());
         updated.setEmail("updated@gmail.com");
         updated.setLevel(Programmer.Level.MIDDLE);
-        ProgrammerDto updatedDTO = mapper.toDto(updated);
+        ProgrammerDto updatedDTO = mapper.entityToDTO(updated);
 
         when(programmerService.updateById(programmer.getId(), updated)).thenReturn(updated);
 
@@ -133,7 +133,7 @@ class ProgrammerControllerTest {
     public void testGetBest() throws Exception {
         List<Programmer> programmerList = List.of(programmer);
         when(statService.findMostSuccessful()).thenReturn(programmerList);
-        List<ProgrammerDto> dtoList = mapper.collectionToDto(programmerList);
+        List<ProgrammerDto> dtoList = mapper.collectionToDTO(programmerList);
 
         mockMvc.perform(get("/company/programmers/best")
                         .header("X-API-KEY", "tm07To05ken*"))

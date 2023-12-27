@@ -1,8 +1,8 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.dto.ProgrammerDto;
-import com.company.team_management.dto.mapper.Mapper;
 import com.company.team_management.entities.Programmer;
+import com.company.team_management.mapper.EntityMapper;
 import com.company.team_management.services.impl.ManagementService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -21,7 +21,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class ManagementController {
     private final ManagementService managementService;
-    private final Mapper<Programmer, ProgrammerDto> mapper;
+    private final EntityMapper<Programmer, ProgrammerDto> mapper;
 
     @PostMapping(value = "/manage/addProject/{id}",
             consumes = "application/json", produces = "application/json")
@@ -33,14 +33,14 @@ public class ManagementController {
                 .buildAndExpand(programmer.getId())
                 .toUri();
         return ResponseEntity.created(location)
-                .body(mapper.toDto(saved));
+                .body(mapper.entityToDTO(saved));
     }
 
     @PostMapping(value = "/manage/addProject", produces = "application/json")
     public ResponseEntity<ProgrammerDto> addProgrammerToProject(@RequestParam(name = "programmer") @Min(0) int empId,
                                                                 @RequestParam(name = "project") @Min(0) int projectId) {
         Programmer updated = managementService.addProgrammerByIdToProject(empId, projectId);
-        ProgrammerDto dto = mapper.toDto(updated);
+        ProgrammerDto dto = mapper.entityToDTO(updated);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 

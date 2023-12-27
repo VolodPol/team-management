@@ -1,12 +1,12 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.mapper.DepartmentMapper;
 import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.utils.test_data_provider.DepartmentProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.utils.TestUtils;
 import com.company.team_management.dto.DepartmentDto;
-import com.company.team_management.dto.mapper.impl.DepartmentMapper;
 import com.company.team_management.entities.Department;
 import com.company.team_management.services.impl.DepartmentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +53,7 @@ public class DepartmentControllerTest {
     public void testSaveDepartment() throws Exception {
         when(departmentService.save(any())).thenReturn(department);
         String departmentJson = TestUtils.objectToJsonString(department);
-        String dtoJson = TestUtils.objectToJsonString(mapper.toDto(department));
+        String dtoJson = TestUtils.objectToJsonString(mapper.entityToDTO(department));
 
         mvc.perform(post("/company/department")
                         .header("X-API-KEY", "tm07To05ken*")
@@ -71,7 +71,7 @@ public class DepartmentControllerTest {
         List<Department> departments = entityProvider.generateEntityList();
         departments.forEach(dep -> dep.setId(TestUtils.generateId()));
 
-        List<DepartmentDto> DTOs = mapper.collectionToDto(departments);
+        List<DepartmentDto> DTOs = mapper.collectionToDTO(departments);
         when(departmentService.findAll()).thenReturn(departments);
 
         mvc.perform(get("/company/departments")
@@ -119,7 +119,7 @@ public class DepartmentControllerTest {
 
     @Test
     public void testGetByIdMethod() throws Exception {
-        var dto = mapper.toDto(department);
+        var dto = mapper.entityToDTO(department);
         when(departmentService.findById(department.getId())).thenReturn(department);
 
         mvc.perform(get("/company/department/{id}", department.getId())

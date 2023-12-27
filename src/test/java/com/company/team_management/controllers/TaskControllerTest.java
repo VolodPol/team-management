@@ -1,9 +1,9 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.dto.TaskDTO;
-import com.company.team_management.dto.mapper.impl.TaskMapper;
 import com.company.team_management.entities.Project;
 import com.company.team_management.entities.Task;
+import com.company.team_management.mapper.TaskMapper;
 import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.services.impl.TaskService;
 import com.company.team_management.utils.TestUtils;
@@ -46,13 +46,13 @@ public class TaskControllerTest {
         task = entityProvider.generateEntity();
         task.setId(TestUtils.generateId());
         task.setProject(new Project());
-        dto = mapper.toDto(task);
+        dto = mapper.entityToDTO(task);
     }
 
     @Test
     public void fetchAllTasks() throws Exception {
         List<Task> tasks = List.of(task);
-        List<TaskDTO> dtoList = mapper.collectionToDto(tasks);
+        List<TaskDTO> dtoList = mapper.collectionToDTO(tasks);
         when(service.findAll()).thenReturn(tasks);
 
         mockMvc.perform(get("/company/tasks")
@@ -115,7 +115,7 @@ public class TaskControllerTest {
         Task toUpdate = entityProvider.generateEntity();
         toUpdate.setId(task.getId());
         toUpdate.setProject(new Project());
-        TaskDTO updatedDto = mapper.toDto(toUpdate);
+        TaskDTO updatedDto = mapper.entityToDTO(toUpdate);
 
         when(service.updateById(toUpdate.getId(), toUpdate))
                 .thenReturn(toUpdate);

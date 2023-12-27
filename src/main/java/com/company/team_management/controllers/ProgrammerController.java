@@ -1,8 +1,8 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.dto.ProgrammerDto;
-import com.company.team_management.dto.mapper.Mapper;
-import com.company.team_management.dto.mapper.impl.ProgrammerMapper;
+import com.company.team_management.mapper.EntityMapper;
+import com.company.team_management.mapper.ProgrammerMapper;
 import com.company.team_management.entities.Programmer;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.services.impl.ProgrammerService;
@@ -11,6 +11,7 @@ import com.company.team_management.validation.CreateGroup;
 import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +25,11 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("company")
+@RequiredArgsConstructor
 public class ProgrammerController {
     private final IService<Programmer> service;
     private final StatisticsService statService;
-    private final Mapper<Programmer, ProgrammerDto> mapper;
-    @Autowired
-    public ProgrammerController(ProgrammerService service, StatisticsService statService, ProgrammerMapper mapper) {
-        this.service = service;
-        this.statService = statService;
-        this.mapper = mapper;
-    }
+    private final EntityMapper<Programmer, ProgrammerDto> mapper;
 
     @Validated(value = CreateGroup.class)
     @PostMapping(value = "/programmer", consumes = "application/json", produces = "application/json")
@@ -44,25 +40,25 @@ public class ProgrammerController {
                 .buildAndExpand(programmer.getId())
                 .toUri();
         return ResponseEntity.created(location)
-                .body(mapper.toDto(newProgrammer));
+                .body(mapper.entityToDTO(newProgrammer));
     }
 
     @GetMapping(value = "/programmers", produces = "application/json")
     public ResponseEntity<List<ProgrammerDto>> getAllProgrammers() {
-        List<ProgrammerDto> dtoList = mapper.collectionToDto(service.findAll());
+        List<ProgrammerDto> dtoList = mapper.collectionToDTO(service.findAll());
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 
     @GetMapping(value = "/programmers/best", produces = "application/json")
     public ResponseEntity<List<ProgrammerDto>> getBest() {
-        List<ProgrammerDto> dtoList = mapper.collectionToDto(statService.findMostSuccessful());
+        List<ProgrammerDto> dtoList = mapper.collectionToDTO(statService.findMostSuccessful());
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 
     @GetMapping(value = "/programmer/{id}", produces = "application/json")
     public ResponseEntity<ProgrammerDto> findById(@PathVariable @Min(0) int id) {
         Programmer foundEmp = service.findById(id);
-        return new ResponseEntity<>(mapper.toDto(foundEmp),  HttpStatus.FOUND);
+        return new ResponseEntity<>(mapper.entityToDTO(foundEmp),  HttpStatus.FOUND);
     }
 
     @DeleteMapping(value = "/programmer/{id}", produces = "application/json")
@@ -77,7 +73,7 @@ public class ProgrammerController {
     @PutMapping(value = "/programmer/{id}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<ProgrammerDto> updateById(@PathVariable @Min(0) int id,
                                                     @Valid @RequestBody Programmer programmer) {
-        ProgrammerDto dto = mapper.toDto(service.updateById(id, programmer));
+        ProgrammerDto dto = mapper.entityToDTO(service.updateById(id, programmer));
         return new ResponseEntity<>(
                 dto, HttpStatus.OK
         );

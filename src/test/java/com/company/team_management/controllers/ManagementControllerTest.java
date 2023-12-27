@@ -1,12 +1,12 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.mapper.ProgrammerMapper;
 import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
 import com.company.team_management.utils.test_data_provider.ProjectProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.utils.TestUtils;
 import com.company.team_management.dto.ProgrammerDto;
-import com.company.team_management.dto.mapper.impl.ProgrammerMapper;
 import com.company.team_management.entities.Programmer;
 import com.company.team_management.entities.Project;
 import com.company.team_management.services.impl.ManagementService;
@@ -57,7 +57,7 @@ public class ManagementControllerTest {
     public void addNewEmpToExistingProjectById() throws Exception {
         Programmer initCopy = programmerProvider.generateEntity();
         programmer.addProject(project);
-        ProgrammerDto updatedDto = mapper.toDto(programmer);
+        ProgrammerDto updatedDto = mapper.entityToDTO(programmer);
 
         when(service.addNewProgrammerToProject(project.getId(), initCopy)).thenReturn(programmer);
 
@@ -78,7 +78,7 @@ public class ManagementControllerTest {
     @Test
     public void addExistingProgrammerToProjectByIds() throws Exception {
         programmer.addProject(project);
-        ProgrammerDto updated = mapper.toDto(programmer);
+        ProgrammerDto updated = mapper.entityToDTO(programmer);
         when(service.addProgrammerByIdToProject(programmer.getId(), project.getId()))
                 .thenReturn(programmer);
 

@@ -1,12 +1,12 @@
 package com.company.team_management.controllers;
 
+import com.company.team_management.mapper.ProjectMapper;
 import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.services.StatisticsService;
 import com.company.team_management.utils.test_data_provider.ProjectProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import com.company.team_management.utils.TestUtils;
 import com.company.team_management.dto.ProjectDTO;
-import com.company.team_management.dto.mapper.impl.ProjectMapper;
 import com.company.team_management.entities.Project;
 import com.company.team_management.services.impl.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,13 +48,13 @@ class ProjectControllerTest {
     public void setUp() {
         project = entityProvider.generateEntity();
         project.setId(TestUtils.generateId());
-        dto = mapper.toDto(project);
+        dto = mapper.entityToDTO(project);
     }
 
     @Test
     public void fetchAllProjects() throws Exception {
         List<Project> projects = List.of(project);
-        List<ProjectDTO> dtoList = mapper.collectionToDto(projects);
+        List<ProjectDTO> dtoList = mapper.collectionToDTO(projects);
         when(service.findAll()).thenReturn(projects);
 
         mockMvc.perform(get("/company/projects")
@@ -117,7 +117,7 @@ class ProjectControllerTest {
     public void updateExistingProject() throws Exception {
         Project toUpdate = entityProvider.generateEntity();
         toUpdate.setId(project.getId());
-        ProjectDTO updatedDto = mapper.toDto(toUpdate);
+        ProjectDTO updatedDto = mapper.entityToDTO(toUpdate);
 
         when(service.updateById(toUpdate.getId(), toUpdate))
                 .thenReturn(toUpdate);
