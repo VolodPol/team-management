@@ -24,6 +24,6 @@ public interface ProjectMapper {
     }
 
     default String programmerToName(Programmer programmer) {
-        return programmer.getFullName();
+        return programmer != null ? programmer.getFullName() : null;
     }
 }

@@ -1,0 +1,189 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1703878202154-8
+      author: VolodPol
+      changes:
+        - createIndex:
+            associatedWith: ''
+            columns:
+              - column:
+                  name: project_id
+            indexName: FKk8qrwowg31kx7hp93sru1pdqa
+            tableName: task
+  - changeSet:
+      id: 1703878202154-9
+      author: VolodPol
+      changes:
+        - createIndex:
+            associatedWith: ''
+            columns:
+              - column:
+                  name: department_id
+            indexName: FKmuso8bulacou5ldkmdca6ay9f
+            tableName: programmer
+  - changeSet:
+      id: 1703878202154-10
+      author: VolodPol
+      changes:
+        - createIndex:
+            associatedWith: ''
+            columns:
+              - column:
+                  name: programmer_id
+            indexName: fk_programmer_idx
+            tableName: programmer_project
+  - changeSet:
+      id: 1703878202154-11
+      author: VolodPol
+      changes:
+        - createIndex:
+            associatedWith: ''
+            columns:
+              - column:
+                  name: project_id
+            indexName: fk_project_idx
+            tableName: programmer_project
+  - changeSet:
+      id: 1703878202154-12
+      author: VolodPol
+      changes:
+        - createIndex:
+            associatedWith: ''
+            columns:
+              - column:
+                  name: programmer_id
+              - column:
+                  name: project_id
+            indexName: programmer_project
+            tableName: programmer_project
+  - changeSet:
+      id: 1703878202154-13
+      author: VolodPol
+      changes:
+        - createIndex:
+            associatedWith: ''
+            columns:
+              - column:
+                  name: user_id
+            indexName: token_user_id_fk
+            tableName: token
+  - changeSet:
+      id: 1703878202154-14
+      author: VolodPol
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: programmer_id
+            baseTableName: programmer_project
+            constraintName: FK50wxed2jjp4fbbwqkd2541xht
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: programmer
+            validate: true
+  - changeSet:
+      id: 1703878202154-15
+      author: VolodPol
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: project_id
+            baseTableName: programmer_project
+            constraintName: FK64mmbks2r02uiraiiqitxs6xt
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: project
+            validate: true
+  - changeSet:
+      id: 1703878202154-16
+      author: VolodPol
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: department_id
+            baseTableName: programmer
+            constraintName: FKmuso8bulacou5ldkmdca6ay9f
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: department
+            validate: true
+  - changeSet:
+      id: 1703878202154-17
+      author: VolodPol
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: programmer_id
+            baseTableName: programmer_project
+            constraintName: fk_programmer
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: programmer
+            validate: true
+  - changeSet:
+      id: 1703878202154-18
+      author: VolodPol
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: project_id
+            baseTableName: programmer_project
+            constraintName: fk_project
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: project
+            validate: true
+  - changeSet:
+      id: 1703878202154-19
+      author: VolodPol
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: department_id
+            baseTableName: programmer
+            constraintName: programmer_department_id_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: department
+            validate: true
+  - changeSet:
+      id: 1703878202154-20
+      author: VolodPol
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: project_id
+            baseTableName: task
+            constraintName: task_project_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: project
+            validate: true
+  - changeSet:
+      id: 1703878202154-21
+      author: VolodPol
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: token
+            constraintName: token_user_id_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true

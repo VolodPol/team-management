@@ -19,6 +19,6 @@ public interface DepartmentMapper {
     List<DepartmentDto> collectionToDTO(List<Department> departments);
 
     default String programmerToName(Programmer programmer) {
-        return programmer.getFullName();
+        return programmer != null ? programmer.getFullName() : null;
     }
 }

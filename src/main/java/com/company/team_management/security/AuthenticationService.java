@@ -72,25 +72,6 @@ public class AuthenticationService {
                 .build();
     }
 
-    private void revokeUserTokens(@NonNull User user) {// can't be null, otherwise an exception will be thrown
-        List<Token> validTokens = tokenRepository.findTokensByUserId(user.getId());
-        if (!validTokens.isEmpty()) {
-            validTokens.forEach(token -> {
-                token.setExpired(true);
-                token.setRevoked(true);
-            });//dirty checking
-        }
-    }
-
-    private void persistUserToken(User user, String jwtToken) {
-        Token token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .tokenType(TokenType.BEARER)
-                .build();//(expired = revoked = false) - default values in the DB
-        tokenRepository.save(token);
-    }
-
     @Transactional//in order to revoke tokens
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -118,5 +99,24 @@ public class AuthenticationService {
                 }
             }
         }
+    }
+
+    private void revokeUserTokens(@NonNull User user) {// can't be null, otherwise an exception will be thrown
+        List<Token> validTokens = tokenRepository.findTokensByUserId(user.getId());
+        if (!validTokens.isEmpty()) {
+            validTokens.forEach(token -> {
+                token.setExpired(true);
+                token.setRevoked(true);
+            });//dirty checking
+        }
+    }
+
+    private void persistUserToken(User user, String jwtToken) {
+        Token token = Token.builder()
+                .user(user)
+                .token(jwtToken)
+                .tokenType(TokenType.BEARER)
+                .build();//(expired = revoked = false) - default values in the DB
+        tokenRepository.save(token);
     }
 }

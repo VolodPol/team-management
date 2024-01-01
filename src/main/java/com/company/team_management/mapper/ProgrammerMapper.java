@@ -27,18 +27,19 @@ public interface ProgrammerMapper {
 
 
     default String projectToTitle(Project project) {
-        return project.getTitle();
+        return project != null ? project.getTitle() : null;
     }
 
+    //TODO: check if not null firstly
     default String departmentToString(Department department) {
-        return department.getName();
+        return department != null ? department.getName() : null;
     }
 
     default String levelToString(Programmer.Level level) {
-        return level.toString();
+        return level == null ? null : level.toString();
     }
 
     default String typeToString(Programmer.Type type) {
-        return type.toString();
+        return type != null ? type.toString() : null;
     }
 }

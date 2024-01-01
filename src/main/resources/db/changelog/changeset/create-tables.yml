@@ -1,0 +1,218 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1703878202154-1
+      author: VolodPol
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    unique: true
+                  name: id
+                  type: INT UNSIGNED
+              - column:
+                  constraints:
+                    nullable: false
+                    unique: true
+                  name: name
+                  type: VARCHAR(64)
+              - column:
+                  constraints:
+                    nullable: false
+                    unique: true
+                  name: location
+                  type: VARCHAR(128)
+            tableName: department
+  - changeSet:
+      id: 1703878202154-2
+      author: VolodPol
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    unique: true
+                  name: id
+                  type: INT UNSIGNED
+              - column:
+                  constraints:
+                    nullable: false
+                  name: full_name
+                  type: VARCHAR(64)
+              - column:
+                  constraints:
+                    unique: true
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: level
+                  type: ENUM('JUNIOR', 'MIDDLE', 'SENIOR')
+              - column:
+                  constraints:
+                    nullable: false
+                  name: type
+                  type: ENUM('DEVELOPER', 'DEVOPS', 'QA')
+              - column:
+                  name: department_id
+                  type: INT UNSIGNED
+            tableName: programmer
+  - changeSet:
+      id: 1703878202154-3
+      author: VolodPol
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: programmer_id
+                  type: INT UNSIGNED
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project_id
+                  type: INT UNSIGNED
+            tableName: programmer_project
+  - changeSet:
+      id: 1703878202154-4
+      author: VolodPol
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    unique: true
+                  name: id
+                  type: INT UNSIGNED
+              - column:
+                  constraints:
+                    nullable: false
+                  name: title
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: goal
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: budget
+                  type: BIGINT UNSIGNED
+            tableName: project
+  - changeSet:
+      id: 1703878202154-5
+      author: VolodPol
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    unique: true
+                  name: id
+                  type: INT UNSIGNED
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(64)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: status
+                  type: TINYINT(3)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project_id
+                  type: INT UNSIGNED
+            tableName: task
+  - changeSet:
+      id: 1703878202154-6
+      author: VolodPol
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: INT UNSIGNED
+              - column:
+                  constraints:
+                    nullable: false
+                  name: token
+                  type: VARCHAR(1024)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: token_type
+                  type: VARCHAR(32)
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueNumeric: 0
+                  name: expired
+                  type: BIT(1)
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueNumeric: 0
+                  name: revoked
+                  type: BIT(1)
+              - column:
+                  name: user_id
+                  type: INT UNSIGNED
+            tableName: token
+  - changeSet:
+      id: 1703878202154-7
+      author: VolodPol
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: INT UNSIGNED
+              - column:
+                  constraints:
+                    nullable: false
+                  name: username
+                  type: VARCHAR(32)
+              - column:
+                  constraints:
+                    nullable: false
+                    unique: true
+                  name: password
+                  type: VARCHAR(64)
+              - column:
+                  constraints:
+                    nullable: false
+                    unique: true
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: role
+                  type: ENUM('USER', 'ADMIN')
+            tableName: user
