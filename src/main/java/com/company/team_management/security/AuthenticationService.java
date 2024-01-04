@@ -3,7 +3,6 @@ package com.company.team_management.security;
 import com.company.team_management.controllers.auth.AuthResponse;
 import com.company.team_management.controllers.auth.AuthenticationRequest;
 import com.company.team_management.controllers.auth.RegistrationRequest;
-import com.company.team_management.entities.users.Role;
 import com.company.team_management.entities.users.User;
 import com.company.team_management.entities.users.token.Token;
 import com.company.team_management.entities.users.token.TokenType;
@@ -40,7 +39,7 @@ public class AuthenticationService {
                         .username(request.getUsername())
                         .email(request.getEmail())
                         .password(encoder.encode(request.getPassword()))
-                        .role(Role.USER)
+                        .role(request.getRole())
                         .build()
         );
         String userToken = tokenService.generateJwtToken(newUser);

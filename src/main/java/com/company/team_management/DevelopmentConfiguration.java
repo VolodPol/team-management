@@ -1,5 +1,6 @@
 package com.company.team_management;
 
+import com.company.team_management.controllers.auth.RegistrationRequest;
 import com.company.team_management.entities.Department;
 import com.company.team_management.entities.Programmer;
 import com.company.team_management.entities.Project;
@@ -8,6 +9,7 @@ import com.company.team_management.entities.users.Role;
 import com.company.team_management.entities.users.User;
 import com.company.team_management.entities.users.token.Token;
 import com.company.team_management.entities.users.token.TokenType;
+import com.company.team_management.security.AuthenticationService;
 import com.company.team_management.security.JwtService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -30,14 +32,17 @@ public class DevelopmentConfiguration {
     private final EntityManagerFactory emf;
 
     @Bean
-    public ApplicationRunner populateDatabaseWithMockData() {
-        return args ->
-                executeInTransaction(em -> {
-                    persistUser(em);
-                    persistProjectWithTasks(em);
-                    persistProgrammer(em);
-                    persistDepartments(em);
-                });
+    public ApplicationRunner populateDatabaseWithMockData(AuthenticationService authService) {
+        return args -> {
+            registerUsers(authService);
+
+            executeInTransaction(em -> {
+                persistUsers(em);
+                persistProjectWithTasks(em);
+                persistProgrammer(em);
+                persistDepartments(em);
+            });
+        };
     }
 
     private void executeInTransaction(Consumer<EntityManager> consumer) {
@@ -52,6 +57,28 @@ public class DevelopmentConfiguration {
         } finally {
             entityManager.close();
         }
+    }
+
+    private void registerUsers(AuthenticationService authService) {
+        RegistrationRequest admin = RegistrationRequest.builder()
+                .username("admin_name")
+                .email("admin@gmail.com")
+                .password("1111")
+                .role(Role.ADMIN)
+                .build();
+
+        System.out.printf("Admin's token: %s\n",
+                authService.register(admin).getToken());
+
+        RegistrationRequest manager = RegistrationRequest.builder()
+                .username("manager_name")
+                .email("manager@gmail.com")
+                .password("1234")
+                .role(Role.MANAGER)
+                .build();
+
+        System.out.printf("Manager's token: %s\n",
+                authService.register(manager).getToken());
     }
 
     private void persistProjectWithTasks(EntityManager manager) {
@@ -92,7 +119,7 @@ public class DevelopmentConfiguration {
         manager.persist(programmer);
     }
 
-    private void persistUser(EntityManager manager) {
+    private void persistUsers(EntityManager manager) {
         User admin = User.builder()
                 .username("admin")
                 .email("user@gmail.com")
