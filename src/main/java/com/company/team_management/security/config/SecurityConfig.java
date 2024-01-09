@@ -2,7 +2,7 @@ package com.company.team_management.security.config;
 
 import com.company.team_management.entities.users.Privilege;
 import com.company.team_management.security.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -24,11 +24,25 @@ import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final LogoutHandler logoutHandler;
+    private final String[] generalEndpoints = new String[] {
+            "/company/departments", "/company/department/**",
+            "/company/programmers", "/company/programmer/**",
+            "/company/projects",    "/company/project/**",
+            "/company/tasks",       "/company/task/**"
+    };
+
+    @Autowired
+    public SecurityConfig(AuthenticationProvider authenticationProvider,
+                          JwtAuthenticationFilter jwtAuthenticationFilter,
+                          LogoutHandler logoutHandler) {
+        this.authenticationProvider = authenticationProvider;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.logoutHandler = logoutHandler;
+    }
 
     @Bean
     public MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspect) {
@@ -63,26 +77,16 @@ public class SecurityConfig {
 
                 .requestMatchers(mvc.pattern("/company/manage/**")).hasAnyRole(MANAGER.name(), ADMIN.name())
 
-                .requestMatchers(POST, generalEndPoints()).hasRole(ADMIN.name())
-                .requestMatchers(POST, generalEndPoints()).hasAuthority(Privilege.ADMIN_CREATE.name())
+                .requestMatchers(POST, generalEndpoints).hasRole(ADMIN.name())
+                .requestMatchers(POST, generalEndpoints).hasAuthority(Privilege.ADMIN_CREATE.name())
 
-                .requestMatchers(PUT, generalEndPoints()).hasRole(ADMIN.name())
-                .requestMatchers(PUT, generalEndPoints()).hasAuthority(Privilege.ADMIN_UPDATE.name())
+                .requestMatchers(PUT, generalEndpoints).hasRole(ADMIN.name())
+                .requestMatchers(PUT, generalEndpoints).hasAuthority(Privilege.ADMIN_UPDATE.name())
 
-                .requestMatchers(DELETE, generalEndPoints()).hasRole(ADMIN.name())
-                .requestMatchers(DELETE, generalEndPoints()).hasAuthority(Privilege.ADMIN_DELETE.name())
+                .requestMatchers(DELETE, generalEndpoints).hasRole(ADMIN.name())
+                .requestMatchers(DELETE, generalEndpoints).hasAuthority(Privilege.ADMIN_DELETE.name())
 
                 .anyRequest()
                 .authenticated();
-    }
-
-
-    private String[] generalEndPoints() {
-        return new String[] {
-                "/company/departments", "/company/department/**",
-                "/company/programmers", "/company/programmer/**",
-                "/company/projects", "/company/project/**",
-                "/company/tasks", "/company/task/**"
-        };
     }
 }

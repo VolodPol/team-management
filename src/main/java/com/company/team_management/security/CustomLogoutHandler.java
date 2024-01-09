@@ -25,7 +25,7 @@ public class CustomLogoutHandler implements LogoutHandler {
         }
     }
 
-    private void invalidateToken(String jwtToken) {//auto-update due to dirty checking
+    private void invalidateToken(String jwtToken) {
         tokenRepository.findByToken(jwtToken)
                 .ifPresent(token -> {
                     token.setExpired(true);

@@ -1,7 +1,6 @@
 package com.company.team_management;
 
 import com.company.team_management.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -18,25 +17,23 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableCaching
-@RequiredArgsConstructor
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
 public class TeamManagementApplication {
-    private final UserRepository userRepo;
 
     public static void main(String[] args) {
         SpringApplication.run(TeamManagementApplication.class, args);
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return (username) -> userRepo.findByEmail(username)
+    public UserDetailsService userDetailsService(UserRepository userRepository) {
+        return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService());
+        provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
 
         return provider;
@@ -53,4 +50,3 @@ public class TeamManagementApplication {
         return config.getAuthenticationManager();
     }
 }
-

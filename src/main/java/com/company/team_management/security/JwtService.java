@@ -18,7 +18,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     @Value("${app.security.jwt.secret_key}")
-    private String secret_key;
+    private String secretKey;
     @Value("${app.security.jwt.expiration}")
     private long jwtExpiration;
     @Value("${app.security.jwt.refresh-token.expiration}")
@@ -43,7 +43,7 @@ public class JwtService {
     }
 
     private Key generateSigningKey() {
-        byte[] bytes = Decoders.BASE64.decode(secret_key);
+        byte[] bytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(bytes);
     }
 
