@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("development")
 class GlobalExceptionHandlerTest {
     @Autowired
     private MockMvc mvc;
@@ -34,6 +37,7 @@ class GlobalExceptionHandlerTest {
     private TaskService taskService;
 
     @Test
+    @WithMockUser(roles = {"MANAGER", "ADMIN"})
     public void testMethodViolationExceptionHandling() throws Exception {
         Department department = new Department();
         String expectedContent = """
@@ -52,7 +56,6 @@ class GlobalExceptionHandlerTest {
                 """;
 
         mvc.perform(post("/company/department")
-                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(department)))
                 .andExpectAll(
@@ -62,6 +65,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void testConstraintViolationException() throws Exception {
         int id = ThreadLocalRandom.current().nextInt(-100, 0);
         String expectedContent = """
@@ -75,7 +79,6 @@ class GlobalExceptionHandlerTest {
                 }
                 """;
         mvc.perform(get("/company/programmer/{id}", id)
-                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isBadRequest(),
@@ -84,6 +87,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"MANAGER", "ADMIN"})
     public void testCommonExceptionsHandlingNoSuchEntity() throws Exception {
         int id = TestUtils.generateId();
         String errorMessage = String.format("There is no entity with id = %d", id);
@@ -91,7 +95,6 @@ class GlobalExceptionHandlerTest {
                 .when(projectService).deleteById(id);
 
         mvc.perform(delete("/company/project/{id}", id)
-                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isConflict(),
@@ -106,6 +109,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"MANAGER", "ADMIN"})
     public void testCommonExceptionsHandlingEntityAlreadyExists() throws Exception {
         Task task = new Task(TestUtils.generateId(), "task", Task.Status.ACTIVE, new Project());
         String errorMessage = "Task already exists!";
@@ -114,7 +118,6 @@ class GlobalExceptionHandlerTest {
         );
 
         mvc.perform(post("/company/task")
-                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(task)))
                 .andExpectAll(

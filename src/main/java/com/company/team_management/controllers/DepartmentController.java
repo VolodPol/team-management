@@ -30,7 +30,7 @@ public class DepartmentController {
 
     @Validated(value = CreateGroup.class)
     @PostMapping(value = "/department", consumes = "application/json")
-    public ResponseEntity<Department> saveDepartment(@Valid @RequestBody Department department) {
+    public ResponseEntity<DepartmentDto> saveDepartment(@Valid @RequestBody Department department) {
         service.save(department);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -39,7 +39,7 @@ public class DepartmentController {
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(department);
+                .body(mapper.entityToDTO(department));
     }
 
     @GetMapping(value = "/departments", produces = "application/json")

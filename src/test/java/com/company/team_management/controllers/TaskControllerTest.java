@@ -3,8 +3,8 @@ package com.company.team_management.controllers;
 import com.company.team_management.dto.TaskDTO;
 import com.company.team_management.entities.Project;
 import com.company.team_management.entities.Task;
+import com.company.team_management.entities.users.Role;
 import com.company.team_management.mapper.TaskMapper;
-import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.services.impl.TaskService;
 import com.company.team_management.utils.TestUtils;
 import com.company.team_management.utils.test_data_provider.TaskProvider;
@@ -12,24 +12,26 @@ import com.company.team_management.utils.test_data_provider.TestEntityProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(TaskController.class)
-@ComponentScan(basePackages = "com.company.team_management.dto.mapper")
-@Import(SecurityConfig.class)
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("development")
 public class TaskControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -56,7 +58,7 @@ public class TaskControllerTest {
         when(service.findAll()).thenReturn(tasks);
 
         mockMvc.perform(get("/company/tasks")
-                        .header("X-API-KEY", "tm07To05ken*")
+                        .with(user("user").password("1234").roles(Role.USER.name()))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
@@ -70,7 +72,7 @@ public class TaskControllerTest {
         when(service.findById(task.getId())).thenReturn(task);
 
         mockMvc.perform(get("/company/task/{id}", task.getId())
-                        .header("X-API-KEY", "tm07To05ken*")
+                        .with(user("user").password("1234").roles(Role.USER.name()))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isFound(),
@@ -84,7 +86,7 @@ public class TaskControllerTest {
         when(service.save(task)).thenReturn(task);
 
         mockMvc.perform(post("/company/task")
-                        .header("X-API-KEY", "tm07To05ken*")
+                        .with(user("admin").password("1111").roles(Role.ADMIN.name()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(task)))
                 .andExpectAll(
@@ -101,7 +103,7 @@ public class TaskControllerTest {
 
         mockMvc.perform(delete("/company/task/{id}", task.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-API-KEY", "tm07To05ken*")
+                        .with(user("admin").password("1111").roles(Role.ADMIN.name()))
                 )
                 .andExpectAll(
                         content().string("Successfully deleted!"),
@@ -121,7 +123,7 @@ public class TaskControllerTest {
                 .thenReturn(toUpdate);
 
         mockMvc.perform(put("/company/task/{id}", task.getId())
-                        .header("X-API-KEY", "tm07To05ken*")
+                        .with(user("admin").password("1111").roles(Role.ADMIN.name()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(toUpdate)))
                 .andExpectAll(

@@ -1,7 +1,6 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.mapper.ProgrammerMapper;
-import com.company.team_management.security.config.SecurityConfig;
 import com.company.team_management.utils.test_data_provider.ProgrammerProvider;
 import com.company.team_management.utils.test_data_provider.ProjectProvider;
 import com.company.team_management.utils.test_data_provider.TestEntityProvider;
@@ -13,21 +12,22 @@ import com.company.team_management.services.impl.ManagementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ManagementController.class)
-@ComponentScan(basePackages = "com.company.team_management.dto.mapper")
-@Import(SecurityConfig.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("development")
 public class ManagementControllerTest {
     @Autowired
     private MockMvc mvc;
@@ -53,6 +53,7 @@ public class ManagementControllerTest {
         project.setId(TestUtils.generateId());
     }
 
+    @WithMockUser(roles = "MANAGER")
     @Test
     public void addNewEmpToExistingProjectById() throws Exception {
         Programmer initCopy = programmerProvider.generateEntity();
@@ -62,7 +63,6 @@ public class ManagementControllerTest {
         when(service.addNewProgrammerToProject(project.getId(), initCopy)).thenReturn(programmer);
 
         mvc.perform(post("/company/manage/addProject/{id}", project.getId())
-                        .header("X-API-KEY", "tm07To05ken*")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.objectToJsonString(initCopy)))
                 .andExpectAll(
@@ -74,7 +74,7 @@ public class ManagementControllerTest {
         verify(service, times(1)).addNewProgrammerToProject(project.getId(), initCopy);
     }
 
-
+    @WithMockUser(roles = "MANAGER")
     @Test
     public void addExistingProgrammerToProjectByIds() throws Exception {
         programmer.addProject(project);
@@ -83,8 +83,7 @@ public class ManagementControllerTest {
                 .thenReturn(programmer);
 
         mvc.perform(post("/company/manage/addProject?programmer={empId}&project={projectId}",
-                        programmer.getId(), project.getId())
-                        .header("X-API-KEY", "tm07To05ken*"))
+                        programmer.getId(), project.getId()))
                 .andExpectAll(
                         content().json(TestUtils.objectToJsonString(updated)),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -93,6 +92,7 @@ public class ManagementControllerTest {
         verify(service, times(1)).addProgrammerByIdToProject(programmer.getId(), project.getId());
     }
 
+    @WithMockUser(roles = "MANAGER")
     @Test
     public void removeProjectFromProgrammerByIds() throws Exception {
         doNothing().when(service).removeProjectFromProgrammer(programmer.getId(), project.getId());
@@ -100,8 +100,7 @@ public class ManagementControllerTest {
                 project.getId(), programmer.getId());
 
         mvc.perform(post("/company/manage/removeProject?programmer={id}&project={id}",
-                        programmer.getId(), project.getId())
-                        .header("X-API-KEY", "tm07To05ken*"))
+                        programmer.getId(), project.getId()))
                 .andExpectAll(
                         content().string(message),
                         status().isOk()
