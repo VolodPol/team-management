@@ -1,16 +1,15 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.dto.ProjectDTO;
-import com.company.team_management.dto.mapper.Mapper;
-import com.company.team_management.dto.mapper.impl.ProjectMapper;
 import com.company.team_management.entities.Project;
+import com.company.team_management.mapper.ProjectMapper;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.StatisticsService;
-import com.company.team_management.services.impl.ProjectService;
 import com.company.team_management.validation.CreateGroup;
 import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -23,33 +22,28 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("company")
+@RequiredArgsConstructor
 public class ProjectController {
     private final IService<Project> service;
     private final StatisticsService statisticsService;
-    private final Mapper<Project, ProjectDTO> mapper;
-
-    public ProjectController(ProjectService service, StatisticsService statisticsService, ProjectMapper mapper) {
-        this.service = service;
-        this.statisticsService = statisticsService;
-        this.mapper = mapper;
-    }
+    private final ProjectMapper mapper;
 
     @GetMapping(value = "/projects", produces = "application/json")
     public ResponseEntity<List<ProjectDTO>> getAll() {
-        List<ProjectDTO> dtoList = mapper.collectionToDto(service.findAll());
+        List<ProjectDTO> dtoList = mapper.collectionToDTO(service.findAll());
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 
     @GetMapping(value = "/project/{id}", produces = "application/json")
     public ResponseEntity<ProjectDTO> findById(@PathVariable @Min(0) int id) {
-        ProjectDTO dto = mapper.toDto(service.findById(id));
+        ProjectDTO dto = mapper.entityToDTO(service.findById(id));
         return new ResponseEntity<>(dto, HttpStatus.FOUND);
     }
 
     @Validated(value = CreateGroup.class)
     @PostMapping(value = "/project", consumes = "application/json")
     public ResponseEntity<ProjectDTO> addProject(@Valid @RequestBody Project project) {
-        ProjectDTO dto = mapper.toDto(service.save(project));
+        ProjectDTO dto = mapper.entityToDTO(service.save(project));
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(project.getId())
@@ -69,7 +63,7 @@ public class ProjectController {
     @PutMapping(value = "/project/{id}", consumes = "application/json")
     public ResponseEntity<ProjectDTO> updateProject(@PathVariable @Min(0) int id,
                                                     @Valid @RequestBody Project updated) {
-        ProjectDTO dto = mapper.toDto(service.updateById(id, updated));
+        ProjectDTO dto = mapper.entityToDTO(service.updateById(id, updated));
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 

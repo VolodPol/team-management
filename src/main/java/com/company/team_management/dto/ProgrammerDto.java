@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ProgrammerDto {
     private int id;
-    private String fullName;
+    private String name;
     private String email;
     private String level;
     private String type;

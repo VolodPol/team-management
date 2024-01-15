@@ -1,17 +1,15 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.dto.DepartmentDto;
-import com.company.team_management.dto.mapper.impl.DepartmentMapper;
-import com.company.team_management.dto.mapper.Mapper;
 import com.company.team_management.entities.Department;
+import com.company.team_management.mapper.DepartmentMapper;
 import com.company.team_management.services.IService;
 import com.company.team_management.services.StatisticsService;
-import com.company.team_management.services.impl.DepartmentService;
 import com.company.team_management.validation.CreateGroup;
 import com.company.team_management.validation.UpdateGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,21 +22,15 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("company")
+@RequiredArgsConstructor
 public class DepartmentController {
     private final IService<Department> service;
     private final StatisticsService statService;
-    private final Mapper<Department, DepartmentDto> mapper;
-
-    @Autowired
-    public DepartmentController(DepartmentService service, StatisticsService statService, DepartmentMapper mapper) {
-        this.service = service;
-        this.statService = statService;
-        this.mapper = mapper;
-    }
+    private final DepartmentMapper mapper;
 
     @Validated(value = CreateGroup.class)
     @PostMapping(value = "/department", consumes = "application/json")
-    public ResponseEntity<Department> saveDepartment(@Valid @RequestBody Department department) {
+    public ResponseEntity<DepartmentDto> saveDepartment(@Valid @RequestBody Department department) {
         service.save(department);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -47,12 +39,12 @@ public class DepartmentController {
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(department);
+                .body(mapper.entityToDTO(department));
     }
 
     @GetMapping(value = "/departments", produces = "application/json")
     public ResponseEntity<List<DepartmentDto>> getAll() {
-        List<DepartmentDto> departments = mapper.collectionToDto(service.findAll());
+        List<DepartmentDto> departments = mapper.collectionToDTO(service.findAll());
         return new ResponseEntity<>(departments, HttpStatus.OK);
     }
 
@@ -67,7 +59,7 @@ public class DepartmentController {
     public ResponseEntity<DepartmentDto> updateDepartment(@PathVariable @Min(0) int id,
                                                           @Valid @RequestBody Department department) {
         Department updated = service.updateById(id, department);
-        DepartmentDto updateDto = mapper.toDto(updated);
+        DepartmentDto updateDto = mapper.entityToDTO(updated);
 
         return ResponseEntity.ok(updateDto);
     }
@@ -75,7 +67,7 @@ public class DepartmentController {
     @GetMapping(value = "/department/{id}", produces = "application/json")
     public ResponseEntity<DepartmentDto> findDepartmentById(@PathVariable @Min(0) int id) {
         Department found = service.findById(id);
-        DepartmentDto dto = mapper.toDto(found);
+        DepartmentDto dto = mapper.entityToDTO(found);
 
         return ResponseEntity.ok(dto);
     }

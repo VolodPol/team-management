@@ -11,6 +11,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "department")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = "programmers")
@@ -28,6 +29,7 @@ public class Department {
     @Column(length = 128, nullable = false, unique = true)
     private String location;
 
+    @Builder.Default
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
     private Set<Programmer> programmers = new HashSet<>();
 

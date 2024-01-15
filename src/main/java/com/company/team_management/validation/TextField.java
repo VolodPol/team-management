@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Constraint(validatedBy = TextFieldValidator.class)
 public @interface TextField {
-    String message() default "TextFiled.invalid\n Value must not be empty or null, up to 255 in length, simple text";
+    String message() default "TextFiled.invalid\n Value must not be empty or null, up to 255 in length, simple text, end with . or ? or !";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

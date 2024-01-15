@@ -1,5 +1,6 @@
 package com.company.team_management.repositories;
 
+import com.company.team_management.config.TestConfiguration;
 import com.company.team_management.entities.Programmer;
 import com.company.team_management.entities.Project;
 import com.company.team_management.entities.Task;
@@ -7,8 +8,10 @@ import com.company.team_management.utils.test_data_provider.ProjectProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -16,8 +19,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
+@Import(TestConfiguration.class)
+@ComponentScan("com.company.team_management.security")
+@ActiveProfiles("development")
 class CustomProjectRepositoryImplTest {
     @Autowired
     private CustomProjectRepositoryImpl repository;

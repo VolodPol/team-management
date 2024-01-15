@@ -1,8 +1,8 @@
 package com.company.team_management.controllers;
 
 import com.company.team_management.dto.ProgrammerDto;
-import com.company.team_management.dto.mapper.Mapper;
 import com.company.team_management.entities.Programmer;
+import com.company.team_management.mapper.ProgrammerMapper;
 import com.company.team_management.services.impl.ManagementService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -17,13 +17,13 @@ import java.net.URI;
 
 @Validated
 @RestController
-@RequestMapping("company")
+@RequestMapping("company/manage")
 @RequiredArgsConstructor
 public class ManagementController {
     private final ManagementService managementService;
-    private final Mapper<Programmer, ProgrammerDto> mapper;
+    private final ProgrammerMapper mapper;
 
-    @PostMapping(value = "/manage/addProject/{id}",
+    @PostMapping(value = "/addProject/{id}",
             consumes = "application/json", produces = "application/json")
     public ResponseEntity<ProgrammerDto> addNewProgrammerToProject(@PathVariable(name = "id") @Min(0) int projectId,
                                                                    @Valid @RequestBody Programmer programmer) {
@@ -33,18 +33,18 @@ public class ManagementController {
                 .buildAndExpand(programmer.getId())
                 .toUri();
         return ResponseEntity.created(location)
-                .body(mapper.toDto(saved));
+                .body(mapper.entityToDTO(saved));
     }
 
-    @PostMapping(value = "/manage/addProject", produces = "application/json")
+    @PostMapping(value = "/addProject", produces = "application/json")
     public ResponseEntity<ProgrammerDto> addProgrammerToProject(@RequestParam(name = "programmer") @Min(0) int empId,
                                                                 @RequestParam(name = "project") @Min(0) int projectId) {
         Programmer updated = managementService.addProgrammerByIdToProject(empId, projectId);
-        ProgrammerDto dto = mapper.toDto(updated);
+        ProgrammerDto dto = mapper.entityToDTO(updated);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    @PostMapping(value="/manage/removeProject")
+    @PostMapping(value="/removeProject")
     public ResponseEntity<String> removeProject(@RequestParam(name = "programmer") @Min(0) int empId,
                                                 @RequestParam(name = "project") @Min(0) int projectId) {
         managementService.removeProjectFromProgrammer(empId, projectId);

@@ -9,6 +9,7 @@ import lombok.*;
 @Data
 @Entity
 @Table(name = "task")
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(exclude = "project")
